@@ -23,5 +23,6 @@ Développer un site web complet permettant :
 
 ###  Cloner le dépôt
 ```bash
-git clone https://github.com/<ton-nom>/stl-marketplace.git
-cd stl-marketplace
+git clone https://github.com/kyliandeffaut/STLMarket.git
+cd STLMarket
+
