@@ -1,6 +1,6 @@
-# 🧩 Projet : Plateforme web de vente de fichiers STL et service d’impression 3D
+#  Projet : Plateforme web de vente de fichiers STL et service d’impression 3D
 
-## 🎯 Objectif
+##  Objectif
 Développer un site web complet permettant :
 - La **vente et l’achat de fichiers STL** pour impression 3D.
 - La **commande d’impressions 3D personnalisées** à partir de fichiers uploadés.
@@ -8,7 +8,7 @@ Développer un site web complet permettant :
 
 ---
 
-## ⚙️ Technologies
+##  Technologies
 
 | Couche | Technologies |
 |--------|---------------|
@@ -19,9 +19,9 @@ Développer un site web complet permettant :
 
 ---
 
-## 🏗️ Installation du projet
+##  Installation du projet
 
-### 1️⃣ Cloner le dépôt
+###  Cloner le dépôt
 ```bash
 git clone https://github.com/<ton-nom>/stl-marketplace.git
 cd stl-marketplace
