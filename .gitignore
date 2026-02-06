@@ -27,9 +27,6 @@ pnpm-debug.log*
 tmp/
 temp/
 
-# === Fichiers STL (volumineux) ===
-*.stl
-
 # === Frontend spécifique ===
 frontend/node_modules/
 frontend/dist/
@@ -39,6 +36,4 @@ frontend/.DS_Store
 # === Backend spécifique ===
 backend/node_modules/
 backend/dist/
-backend/public/files/
-backend/public/uploads/
 backend/.DS_Store

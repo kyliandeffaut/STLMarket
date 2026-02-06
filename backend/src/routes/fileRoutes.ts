@@ -1,13 +1,18 @@
 import { Router } from "express";
-import { listFiles, getByTitle, seedDemo } from "../controllers/fileController";
-
-console.log("📦 fileRoutes chargé"); // log temporaire pour debug
+import File from "../models/File";
 
 const r = Router();
-r.get("/_debug", (_req, res) => res.json({ router: "ok" })); // route debug
 
-r.get("/", listFiles);
-r.get("/:title", getByTitle);
-r.post("/seed", seedDemo);
+r.get("/", async (_req, res) => {
+  const files = await File.find().sort({ createdAt: -1 });
+  res.json(files);
+});
+
+r.get("/:title", async (req, res) => {
+  const title = decodeURIComponent(req.params.title);
+  const file = await File.findOne({ title });
+  if (!file) return res.status(404).json({ error: "not_found" });
+  res.json(file);
+});
 
 export default r;

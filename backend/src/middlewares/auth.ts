@@ -1,31 +1,31 @@
-import { NextFunction, Request, Response } from "express";
+import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 
-const JWT_SECRET = process.env.JWT_SECRET || "supersecret";
+const JWT_SECRET = process.env.JWT_SECRET || "dev_secret_change_me";
 
-// Le contenu du token que l'on attend
-export type AuthPayload = { id: string; email: string; role: "USER" | "ADMIN" };
+export type AuthPayload = { id: string; role: "user" | "admin" };
 
-// Middleware: nécessite un token Bearer valide
+export function signToken(payload: AuthPayload) {
+  return jwt.sign(payload, JWT_SECRET, { expiresIn: "7d" });
+}
+
 export function requireAuth(req: Request, res: Response, next: NextFunction) {
-  const h = req.headers.authorization || "";
-  const token = h.startsWith("Bearer ") ? h.slice(7) : null;
-  if (!token) return res.status(401).json({ error: "missing_token" });
+  const h = req.headers.authorization;
+  if (!h?.startsWith("Bearer ")) return res.status(401).json({ error: "missing_token" });
 
+  const token = h.slice("Bearer ".length);
   try {
-    const payload = jwt.verify(token, JWT_SECRET) as AuthPayload;
-    // on stocke le payload sur la requête
-    (req as any).auth = payload;
+    const decoded = jwt.verify(token, JWT_SECRET) as AuthPayload;
+    (req as any).auth = decoded;
     next();
   } catch {
     return res.status(401).json({ error: "invalid_token" });
   }
 }
 
-// Optionnel: route réservée aux admins
 export function requireAdmin(req: Request, res: Response, next: NextFunction) {
   const auth = (req as any).auth as AuthPayload | undefined;
-  if (!auth) return res.status(401).json({ error: "unauthenticated" });
-  if (auth.role !== "ADMIN") return res.status(403).json({ error: "forbidden" });
+  if (!auth) return res.status(401).json({ error: "missing_token" });
+  if (auth.role !== "admin") return res.status(403).json({ error: "not_admin" });
   next();
 }

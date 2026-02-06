@@ -68,3 +68,36 @@ a:hover { opacity: .9; }
 .label { display:block; margin: 8px 0 6px; color: var(--muted); font-size: 14px; }
 .row { display:flex; gap:12px; align-items:center; }
 .spacer { height: 18px; }
+
+/* --- RESPONSIVE PRODUCT DETAIL --- */
+
+/* Par défaut (Mobile d'abord) */
+.detail-grid {
+  display: grid;
+  grid-template-columns: 1fr; /* 1 seule colonne */
+  gap: 24px;
+}
+
+.detail-card {
+  height: auto; /* La hauteur s'adapte au contenu */
+  min-height: 300px;
+}
+
+.action-row {
+  display: flex;
+  flex-wrap: wrap; /* Permet au bouton de passer à la ligne si besoin */
+  gap: 16px;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* Écrans larges (Tablette et PC > 768px) */
+@media (min-width: 900px) {
+  .detail-grid {
+    grid-template-columns: 1.5fr 1fr; /* Retour aux 2 colonnes */
+  }
+  
+  .detail-card {
+    height: 400px; /* On remet la hauteur fixe pour l'alignement joli sur PC */
+  }
+}

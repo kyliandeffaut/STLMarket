@@ -1,51 +1,95 @@
 import express from "express";
-import dotenv from "dotenv";
 import cors from "cors";
 import path from "node:path";
-import { connectMongo } from "./config/db_mongo"; // garde-le
-import fileRoutes from "./routes/fileRoutes";     // garde-le
-import userRoutes from "./routes/userRoutes";
+import fs from "node:fs";
+import mongoose from "mongoose";
+import "dotenv/config"; // Toujours charger les variables d'env en premier
 
-
-console.log("✅ Serveur Express démarré depuis", __filename);
-
-dotenv.config();
+// --- Imports des routes ---
+import authRoutes from "./routes/authRoutes";
+import fileRoutes from "./routes/fileRoutes";
+import orderRoutes from "./routes/orderRoutes";
+import printRoutes from "./routes/printRoutes";
+import adminPrintRoutes from "./routes/adminPrintRoutes";
 
 const app = express();
-app.use(cors());
-app.use(express.json());
+const PORT = process.env.PORT || 3000;
 
-// 1) routes minimales pour vérifier que le serveur écoute
-app.get("/api/ping", (_req, res) => res.json({ ok: true, ts: Date.now() }));
-app.get("/", (_req, res) => res.send("API STL Marketplace OK ✅"));
+// ==========================================
+// 1. BASE DE DONNÉES (MongoDB)
+// ==========================================
+console.log("⏳ Tentative de connexion à MongoDB...");
 
-// 2) servir les STL (facultatif)
-app.use("/files", express.static(path.join(__dirname, "../public/files")));
+mongoose
+  .connect(process.env.MONGO_URI as string)
+  .then(() => console.log("✅ MongoDB Connecté avec succès !"))
+  .catch((err) => {
+    console.error("❌ ERREUR MONGODB :", err);
+  });
 
-// 3) monter les routes métier (même si Mongo plante, ça doit s’enregistrer)
-app.use("/api/files", fileRoutes);
-app.use("/api/users", userRoutes);
+// ==========================================
+// 2. MIDDLEWARES (Sécurité & Parsing)
+// ==========================================
 
-// 4) LANCER D’ABORD LE SERVEUR, PUIS CONNECTER MONGO (Safe-Start)
-const PORT = Number(process.env.PORT || 3000);
-const server = app.listen(PORT, () => {
-  console.log(`🚀 API en écoute sur http://localhost:${PORT}`);
-  console.log(`➡️ Test ping:     http://localhost:${PORT}/api/ping`);
-  console.log(`➡️ Liste fichiers: http://localhost:${PORT}/api/files`);
+// Configuration CORS (Une seule fois, propre)
+const corsOptions: cors.CorsOptions = {
+  origin: "http://localhost:5173", // Ton Frontend
+  credentials: true, // Autorise les cookies/sessions
+  methods: ["GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+};
+
+app.use(cors(corsOptions));
+app.use(express.json()); // Permet de lire les JSON envoyés par le frontend
+
+// ==========================================
+// 3. FICHIERS STATIQUES (STL & Images)
+// ==========================================
+
+// On définit les chemins par rapport à la racine du projet (process.cwd)
+// Structure attendue : backend/public/files
+const publicDir = path.join(process.cwd(), "public");
+const filesDir = path.join(publicDir, "files");
+const printsDir = path.join(publicDir, "print_requests");
+
+// Création automatique des dossiers s'ils manquent
+[publicDir, filesDir, printsDir].forEach((dir) => {
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir, { recursive: true });
+    console.log(`📁 Dossier créé : ${dir}`);
+  }
 });
 
-// 5) tenter la connexion Mongo EN ARRIÈRE-PLAN (sans bloquer l’écoute)
-(async () => {
-  const uri = process.env.MONGO_URL || "mongodb://127.0.0.1:27017/stlmarket?directConnection=true";
-  try {
-    console.log("🔌 Tentative connexion Mongo →", uri);
-    await connectMongo(uri);
-    console.log("✅ Mongo connecté");
-  } catch (err) {
-    console.error("❌ Échec Mongo (le serveur REST reste UP) :", (err as Error).message);
-  }
-})();
+// Logs pour vérifier que le chemin est bon au démarrage
+console.log(`📂 Dossier Fichiers publics : ${filesDir}`);
 
-// (facultatif) gestion d’erreurs globales
-process.on("unhandledRejection", (e) => console.error("UnhandledRejection:", e));
-process.on("uncaughtException", (e) => console.error("UncaughtException:", e));
+// EXPOSITION DES DOSSIERS
+// -> http://localhost:3000/files/monfichier.stl
+app.use("/files", express.static(filesDir));
+// -> http://localhost:3000/print_requests/monfichier.stl
+app.use("/print_requests", express.static(printsDir));
+
+// ==========================================
+// 4. ROUTES API
+// ==========================================
+app.use("/api/auth", authRoutes);
+app.use("/api/files", fileRoutes);
+app.use("/api/orders", orderRoutes);
+app.use("/api/prints", printRoutes);
+app.use("/api/admin/prints", adminPrintRoutes);
+
+// Route de test (Page d'accueil de l'API)
+app.get("/", (_req, res) => {
+  res.send(`
+    <h1>API STL Marketplace</h1>
+    <p>Statut: En ligne 🟢</p>
+    <p>Dossier fichiers: ${filesDir}</p>
+  `);
+});
+
+// ==========================================
+// 5. LANCEMENT DU SERVEUR
+// ==========================================
+app.listen(PORT, () => {
+  console.log(`🚀 Serveur lancé sur http://localhost:${PORT}`);
+});
