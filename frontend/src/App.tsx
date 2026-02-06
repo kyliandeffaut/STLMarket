@@ -8,6 +8,7 @@ import Profile from "./pages/Profile";
 import Admin from "./pages/Admin";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import PrintService from "./pages/PrintService";
 
 export default function App() {
   return (
@@ -17,6 +18,7 @@ export default function App() {
         <Route path="/" element={<Navigate to="/catalogue" replace />} />
         <Route path="/catalogue" element={<Catalogue />} />
         <Route path="/product/:title" element={<ProductDetail />} />
+        <Route path="/print" element={<PrintService />} />
         <Route path="/cart" element={<Cart />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/admin" element={<Admin />} />

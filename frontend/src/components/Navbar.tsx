@@ -24,6 +24,10 @@ export default function Navbar() {
 
         <nav className="row" style={{ gap: 18, alignItems: "center" }}>
           <NavLink to="/catalogue" {...active}>Catalogue</NavLink>
+          
+          {/* 👇 NOUVEAU LIEN AJOUTÉ ICI 👇 */}
+          <NavLink to="/print" {...active}>Impression 3D</NavLink>
+
           <NavLink to="/cart" {...active}>Panier</NavLink>
           <NavLink to="/profile" {...active}>Mon espace</NavLink>
 

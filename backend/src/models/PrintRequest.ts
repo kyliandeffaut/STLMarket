@@ -1,18 +1,20 @@
-import { Schema, model } from "mongoose";
+import mongoose from "mongoose";
 
-export type PrintStatus = "pending" | "quoted" | "rejected" | "paid";
-
-const printRequestSchema = new Schema(
-  {
-    userId: { type: Schema.Types.ObjectId, ref: "User", required: true },
-    originalName: { type: String, required: true },
-    storedName: { type: String, required: true },
-    notes: { type: String, default: "" },
-    status: { type: String, enum: ["pending", "quoted", "rejected", "paid"], default: "pending" },
-    quotePrice: { type: Number, default: null },
-    adminMessage: { type: String, default: "" },
+const printRequestSchema = new mongoose.Schema({
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+  originalName: { type: String, required: true },
+  storedName: { type: String, required: true },
+  
+  description: { type: String, default: "" }, 
+  
+  status: { 
+    type: String, 
+    enum: ["pending", "quoted", "paid"], 
+    default: "pending" 
   },
-  { timestamps: true }
-);
+  quotePrice: { type: Number, default: null },
+  createdAt: { type: Date, default: Date.now },
+});
 
-export default model("PrintRequest", printRequestSchema);
+const PrintRequest = mongoose.models.PrintRequest || mongoose.model("PrintRequest", printRequestSchema);
+export default PrintRequest;
