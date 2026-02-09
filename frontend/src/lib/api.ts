@@ -2,7 +2,8 @@ import axios from "axios";
 
 // 1. CONFIGURATION DE BASE
 const api = axios.create({
-  // 👇 ICI : ON FORCE L'ADRESSE DE RENDER (plus de localhost pour l'instant)
+  // 👇 ICI : C'EST LA CORRECTION. On force l'adresse de Render.
+  // On oublie localhost et les variables d'env pour l'instant.
   baseURL: "https://stlmarket.onrender.com",
   timeout: 10000,
 });
