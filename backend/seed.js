@@ -23,11 +23,11 @@ const File = mongoose.model('File', FileSchema);
 // 3. Les données à insérer
 const produits = [
   {
-    title: "Boîte articulée",
+    title: "Boite articulée",
     description: "Une boîte pratique imprimable en une seule fois.",
     price: 5.00,
     category: "Maison",
-    filename: "Boîte articulée.stl" // Attention aux majuscules/accents !
+    filename: "Boite articulée.stl" // Attention aux majuscules/accents !
   },
   {
     title: "Support téléphone",
