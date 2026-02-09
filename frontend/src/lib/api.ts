@@ -2,8 +2,8 @@ import axios from "axios";
 
 // 1. CONFIGURATION DE BASE
 const api = axios.create({
-  // En prod, ça utilisera ton backend Render. En local, ton localhost:3000
-  baseURL: (import.meta as any).env?.VITE_API_URL || "http://localhost:3000",
+  // 👇 ICI : ON FORCE L'ADRESSE DE RENDER (plus de localhost pour l'instant)
+  baseURL: "https://stlmarket.onrender.com",
   timeout: 10000,
 });
 
@@ -41,7 +41,7 @@ export const AuthAPI = {
 };
 
 // =========================================================
-// FICHIERS (CATALOGUE) - C'EST LA PARTIE IMPORTANTE
+// FICHIERS (CATALOGUE)
 // =========================================================
 export type FileDTO = {
   _id: string;
@@ -55,7 +55,6 @@ export type FileDTO = {
 
 export const FilesAPI = {
   async list(): Promise<FileDTO[]> {
-    // ✅ CORRECTION : On demande le JSON via /api/files
     const { data } = await api.get("/api/files");
     return data;
   },
