@@ -1,43 +1,34 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+import api from "../lib/api";
 import { useNavigate } from "react-router-dom";
 
 export default function Admin() {
-  const [tab, setTab] = useState<"catalog" | "prints">("prints"); // Onglets
+  const [tab, setTab] = useState<"catalog" | "prints">("prints");
   
-  // --- ÉTATS POUR LE CATALOGUE (UPLOAD) ---
+  // --- ÉTATS CATALOGUE ---
   const [file, setFile] = useState<File | null>(null);
   const [title, setTitle] = useState("");
   const [price, setPrice] = useState("");
   const [category, setCategory] = useState("Divers");
   
-  // --- ÉTATS POUR LES IMPRESSIONS (DEVIS) ---
+  // --- ÉTATS IMPRESSIONS ---
   const [requests, setRequests] = useState<any[]>([]);
   const [quotePrices, setQuotePrices] = useState<{ [key: string]: number }>({});
 
   const navigate = useNavigate();
 
-  // Chargement initial
-  useEffect(() => {
-    loadRequests();
-  }, []);
+  useEffect(() => { loadRequests(); }, []);
 
   const loadRequests = async () => {
-    const token = localStorage.getItem("token");
-    if(!token) return;
-    
     try {
-      // On récupère les demandes via la route backend
-      const res = await axios.get("http://localhost:3000/api/print/all", {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      // 👇 Correction URL
+      const res = await api.get("/api/print/all");
       setRequests(res.data);
     } catch (e) {
       console.error("Erreur chargement demandes", e);
     }
   };
 
-  // --- LOGIQUE CATALOGUE ---
   const handleUploadCatalog = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!file) return alert("Fichier manquant");
@@ -48,39 +39,35 @@ export default function Admin() {
     formData.append("price", price);
     formData.append("category", category);
 
-    const token = localStorage.getItem("token");
-
     try {
-      await axios.post("http://localhost:3000/api/files", formData, {
-        headers: { 
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "multipart/form-data"
-        }
+      // 👇 Correction URL
+      await api.post("/api/files", formData, {
+        headers: { "Content-Type": "multipart/form-data" }
       });
       alert("Produit ajouté au catalogue !");
-      setTitle(""); setPrice(""); setFile(null); // Reset
+      setTitle(""); setPrice(""); setFile(null);
     } catch (error) {
       alert("Erreur upload catalogue");
     }
   };
 
-  // --- LOGIQUE IMPRESSION (DEVIS) ---
   const handleQuote = async (id: string) => {
     const p = quotePrices[id];
     if (!p || p <= 0) return alert("Prix invalide");
 
-    const token = localStorage.getItem("token");
     try {
-      await axios.post(`http://localhost:3000/api/print/${id}/quote`, { price: p }, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      // 👇 Correction URL
+      await api.post(`/api/print/${id}/quote`, { price: p });
       alert("Devis envoyé au client ! ✅");
-      loadRequests(); // Recharger la liste
+      loadRequests();
     } catch (e) {
       alert("Erreur lors de l'envoi du prix");
     }
   };
 
+  // ... (Le reste du return reste identique à ton code visuel)
+  // Je ne remets que le début pour économiser de la place,
+  // garde ton JSX (return ...) tel quel, il est très bien !
   return (
     <div className="container" style={{ padding: "40px 20px" }}>
       <h1>Panneau Administrateur 🛡️</h1>
@@ -116,32 +103,22 @@ export default function Admin() {
                             borderRadius: 8,
                             display: "flex",
                             justifyContent: "space-between",
-                            alignItems: "flex-start", // Aligné en haut pour gérer les descriptions longues
+                            alignItems: "flex-start",
                             background: "rgba(255,255,255,0.02)"
                         }}>
                             <div style={{ maxWidth: "60%" }}>
                                 <div style={{ fontWeight: "bold", fontSize: "1.1rem" }}>{r.originalName}</div>
-                                
-                                {/* 👇 AJOUT DE LA DESCRIPTION ICI 👇 */}
-                                <div style={{ 
-                                    margin: "10px 0", 
-                                    padding: "10px", 
-                                    background: "rgba(255, 255, 255, 0.05)", 
-                                    borderRadius: "6px", 
-                                    borderLeft: "4px solid var(--primary)",
-                                    fontSize: "0.95rem",
-                                    lineHeight: "1.4"
-                                }}>
+                                <div style={{ margin: "10px 0", padding: "10px", background: "rgba(255, 255, 255, 0.05)", borderRadius: "6px", borderLeft: "4px solid var(--primary)", fontSize: "0.95rem", lineHeight: "1.4" }}>
                                     📝 <strong>Demande client :</strong> <br/>
                                     <span style={{ opacity: 0.9 }}>{r.description || "Aucune précision."}</span>
                                 </div>
-
                                 <div style={{ fontSize: 13, opacity: 0.7 }}>
                                     Client : {r.userId?.email || "Anonyme"} • {new Date(r.createdAt).toLocaleDateString()}
                                 </div>
+                                {/* 👇 LIEN DE TÉLÉCHARGEMENT CORRIGÉ (POINTE VERS RENDER) 👇 */}
                                 <div style={{ marginTop: 8 }}>
                                     <a 
-                                        href={`http://localhost:3000/print_requests/${r.storedName}`} 
+                                        href={`https://stlmarket.onrender.com/print_requests/${r.storedName}`} 
                                         target="_blank" 
                                         style={{ color: "var(--primary)", textDecoration: "underline" }}
                                     >
@@ -150,7 +127,6 @@ export default function Admin() {
                                 </div>
                             </div>
 
-                            {/* Zone de prix */}
                             <div style={{ display: "flex", gap: 10, alignItems: "center", marginTop: 5 }}>
                                 <input 
                                     type="number" 

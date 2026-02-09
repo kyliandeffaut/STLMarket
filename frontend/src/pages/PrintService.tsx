@@ -1,45 +1,39 @@
 import { useState, useEffect } from "react";
-import axios from "axios";
+
+import api from "../lib/api";
 import { useCart } from "../context/CartContext";
 
 export default function PrintService() {
   const [file, setFile] = useState<File | null>(null);
-  const [description, setDescription] = useState(""); // Nouvel état
+  const [description, setDescription] = useState("");
   const [requests, setRequests] = useState<any[]>([]);
   const { addItem } = useCart();
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (token) {
-      axios.get("http://localhost:3000/api/print/my", {
-        headers: { Authorization: `Bearer ${token}` }
-      }).then(res => setRequests(Array.isArray(res.data) ? res.data : []));
-    }
+      // 👇 Utilisation de api.get (URL propre)
+      api.get("/api/print/my")
+        .then(res => setRequests(Array.isArray(res.data) ? res.data : []))
+        .catch(err => console.error("Erreur chargement prints", err));
   }, []);
 
   const handleUpload = async (e: React.FormEvent) => {
     e.preventDefault();
-    const token = localStorage.getItem("token");
-    if (!file || !token) return alert("Veuillez vous connecter et choisir un fichier.");
+    if (!file) return alert("Veuillez choisir un fichier.");
 
     const formData = new FormData();
-    // 👇 C'EST ICI LA CORRECTION DE L'ERREUR : "stl" doit matcher le backend upload.single("stl")
     formData.append("stl", file); 
-    // 👇 On envoie la description
     formData.append("description", description);
 
     try {
-      await axios.post("http://localhost:3000/api/print/request", formData, {
-        headers: { 
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "multipart/form-data"
-        }
+      // 👇 Utilisation de api.post (URL propre + header token auto)
+      await api.post("/api/print/request", formData, {
+        headers: { "Content-Type": "multipart/form-data" }
       });
       alert("Demande envoyée avec succès !");
       window.location.reload();
     } catch (error) {
       console.error(error);
-      alert("Erreur d'envoi. Vérifiez que c'est bien un fichier .stl");
+      alert("Erreur d'envoi. Vérifiez que vous êtes connecté.");
     }
   };
 
@@ -74,7 +68,6 @@ export default function PrintService() {
             />
           </div>
 
-          {/* 👇 LA ZONE DE DESCRIPTION */}
           <div>
             <label style={{display: "block", marginBottom: 5}}>Détails (Taille, couleur, matériau, remplissage...) :</label>
             <textarea 
@@ -102,7 +95,6 @@ export default function PrintService() {
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
                     <div>
                         <strong style={{fontSize: "1.1rem"}}>{r.originalName}</strong>
-                        {/* On affiche la description ici pour rappel */}
                         <p style={{ margin: "5px 0", fontSize: "0.9rem", opacity: 0.8, background: "rgba(255,255,255,0.05)", padding: 8, borderRadius: 4 }}>
                             📝 {r.description}
                         </p>

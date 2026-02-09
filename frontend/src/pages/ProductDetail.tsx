@@ -66,9 +66,9 @@ export default function ProductDetail() {
     </div>
   );
 
-  const api = import.meta.env.VITE_API_URL || "http://localhost:3000/api";
-  const base = api.replace(/\/api\/?$/, "");
-  const stlUrl = `${base}/files/${encodeURIComponent(item.filename)}`;
+  // 👇 LA CORRECTION EST ICI
+  // On pointe directement vers ton serveur Render pour récupérer le fichier 3D
+  const stlUrl = `https://stlmarket.onrender.com/files/${encodeURIComponent(item.filename)}`;
 
   return (
     <section className="container">

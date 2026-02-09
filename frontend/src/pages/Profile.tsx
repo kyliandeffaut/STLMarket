@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useCart } from "../context/CartContext";
-import axios from "axios";
+import api from "../lib/api";
 import { useNavigate } from "react-router-dom";
 
 export default function Profile() {
@@ -12,33 +12,23 @@ export default function Profile() {
 
   const load = async () => {
     setLoading(true);
-    const token = localStorage.getItem("token");
+    // On n'a plus besoin de récupérer le token manuellement ici, 
+    // l'intercepteur dans api.ts le fait déjà !
     
-    if (!token) {
-        navigate("/login");
-        return;
-    }
-
     try {
-      // 1. On lance les deux requêtes en parallèle
+      // 👇 On utilise api.get et on enlève le début de l'URL
       const [ordersRes, printsRes] = await Promise.all([
-        axios.get("http://localhost:3000/api/orders/my", {
-            headers: { Authorization: `Bearer ${token}` }
-        }),
-        axios.get("http://localhost:3000/api/print/my", {
-            headers: { Authorization: `Bearer ${token}` }
-        })
+        api.get("/api/orders/my"),
+        api.get("/api/print/my")
       ]);
 
-      // 2. CORRECTION CRITIQUE ICI 👇
-      // Orders renvoie { ok: true, orders: [...] }
       setOrders(ordersRes.data.orders || []); 
-      
-      // Prints renvoie directement le tableau [...] (et pas { requests: ... })
       setPrints(Array.isArray(printsRes.data) ? printsRes.data : []);
 
     } catch (e) {
       console.error("Erreur chargement profil", e);
+      // Si erreur 401 (Non autorisé), on redirige
+      if ((e as any).response?.status === 401) navigate("/login");
     } finally {
       setLoading(false);
     }
@@ -48,13 +38,10 @@ export default function Profile() {
 
   const removeOrder = async (id: string) => {
     if(!window.confirm("Supprimer cette commande de l'historique ?")) return;
-
-    const token = localStorage.getItem("token");
     try {
-        await axios.delete(`http://localhost:3000/api/orders/${id}`, {
-            headers: { Authorization: `Bearer ${token}` }
-        });
-        await load(); // On recharge la liste
+       // 👇 Correction ici aussi
+        await api.delete(`/api/orders/${id}`);
+        await load(); 
     } catch (e) {
         alert("Erreur lors de la suppression");
     }
@@ -65,14 +52,14 @@ export default function Profile() {
 
     addItem(
       {
-        _id: `print_${r._id}`, // On ajoute le préfixe pour que le Panier sache le nettoyer
+        _id: `print_${r._id}`, 
         kind: "print",
         title: `Impression 3D: ${r.originalName}`,
         price: r.quotePrice,
         category: "Impression 3D",
         filename: r.storedName,
       },
-      1 // Quantité en 2ème argument (Correct !)
+      1 
     );
     alert("Ajouté au panier ✅");
   };
