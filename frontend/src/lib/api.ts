@@ -1,12 +1,13 @@
-// frontend/src/lib/api.ts
 import axios from "axios";
 
+// 1. CONFIGURATION DE BASE
 const api = axios.create({
-  baseURL: (import.meta as any).env?.VITE_API_URL || "http://localhost:3000/api",
+  // En prod, ça utilisera ton backend Render. En local, ton localhost:3000
+  baseURL: (import.meta as any).env?.VITE_API_URL || "http://localhost:3000",
   timeout: 10000,
 });
 
-// ✅ Token auto (injecté s'il existe)
+// 2. INTERCEPTEUR (Token)
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem("token");
   if (token) config.headers.Authorization = `Bearer ${token}`;
@@ -14,9 +15,8 @@ api.interceptors.request.use((config) => {
 });
 
 // =========================================================
-// 👇 LA PARTIE QUI TE MANQUAIT (C'est ça qui corrige l'erreur)
+// AUTHENTIFICATION
 // =========================================================
-
 export type UserDTO = {
   id: string;
   email: string;
@@ -27,24 +27,22 @@ export type UserDTO = {
 
 export const AuthAPI = {
   async register(data: any) {
-    const { data: res } = await api.post("/auth/register", data);
+    const { data: res } = await api.post("/api/auth/register", data);
     return res; 
   },
   async login(creds: { email: string; password: string }) {
-    const { data: res } = await api.post("/auth/login", creds);
+    const { data: res } = await api.post("/api/auth/login", creds);
     return res;
   },
   async me() {
-    const { data } = await api.get("/auth/me");
+    const { data } = await api.get("/api/auth/me");
     return data;
   },
 };
 
 // =========================================================
-// LE RESTE DE TON CODE (JE L'AI GARDÉ TEL QUEL)
+// FICHIERS (CATALOGUE) - C'EST LA PARTIE IMPORTANTE
 // =========================================================
-
-// ---------------- FILES ----------------
 export type FileDTO = {
   _id: string;
   title: string;
@@ -57,16 +55,19 @@ export type FileDTO = {
 
 export const FilesAPI = {
   async list(): Promise<FileDTO[]> {
-    const { data } = await api.get("/files");
+    // ✅ CORRECTION : On demande le JSON via /api/files
+    const { data } = await api.get("/api/files");
     return data;
   },
   async detailByTitle(title: string): Promise<FileDTO> {
-    const { data } = await api.get(`/files/${encodeURIComponent(title)}`);
+    const { data } = await api.get(`/api/files/${encodeURIComponent(title)}`);
     return data;
   },
 };
 
-// ---------------- PRINT REQUESTS ----------------
+// =========================================================
+// IMPRESSIONS (USER)
+// =========================================================
 export type PrintRequestStatus = "pending" | "quoted" | "rejected" | "paid";
 
 export type PrintRequestDTO = {
@@ -87,45 +88,46 @@ export const PrintAPI = {
     const fd = new FormData();
     fd.append("stl", stlFile);
     fd.append("notes", notes);
-
-    const { data } = await api.post("/prints", fd, {
+    const { data } = await api.post("/api/print", fd, {
       headers: { "Content-Type": "multipart/form-data" },
     });
     return data as { ok: true; id: string };
   },
 
   async my(): Promise<{ ok: true; requests: PrintRequestDTO[] }> {
-    const { data } = await api.get("/prints/my");
+    const { data } = await api.get("/api/print/my");
     return data;
   },
 };
 
-// ---------------- ADMIN PRINTS ----------------
+// =========================================================
+// ADMIN IMPRESSIONS
+// =========================================================
 export const AdminPrintAPI = {
   async list() {
-    const { data } = await api.get("/admin/prints");
+    const { data } = await api.get("/api/admin/prints");
     return data as { ok: true; requests: PrintRequestDTO[] };
   },
 
   async quote(id: string, price: number, adminMessage = "") {
-    const { data } = await api.patch(`/admin/prints/${id}/quote`, { price, adminMessage });
+    const { data } = await api.patch(`/api/admin/prints/${id}/quote`, { price, adminMessage });
     return data as { ok: true; request: PrintRequestDTO };
   },
 
   async reject(id: string, adminMessage = "") {
-    // Dans notre backend actuel, "Refuser" = "Supprimer" (DELETE)
-    // On passe le message en body si besoin, même si DELETE l'ignore souvent
-    const { data } = await api.delete(`/admin/prints/${id}`, { data: { adminMessage } });
+    const { data } = await api.delete(`/api/admin/prints/${id}`, { data: { adminMessage } });
     return data as { ok: true };
   },
 
   async remove(id: string) {
-    const { data } = await api.delete(`/admin/prints/${id}`);
+    const { data } = await api.delete(`/api/admin/prints/${id}`);
     return data as { ok: true };
   },
 };
 
-// ---------------- ORDERS ----------------
+// =========================================================
+// COMMANDES (ORDERS)
+// =========================================================
 export type OrderItemDTO = {
   kind: "file" | "print";
   fileId?: string;
@@ -146,18 +148,17 @@ export type OrderDTO = {
 
 export const OrdersAPI = {
   async create(items: OrderItemDTO[]) {
-    const { data } = await api.post("/orders", { items });
+    const { data } = await api.post("/api/orders", { items });
     return data as { ok: true; orderId: string };
   },
 
-  // On précise ici que ça renvoie une liste de OrderDTO
   async my(): Promise<{ ok: true; orders: OrderDTO[] }> {
-    const { data } = await api.get("/orders/my");
+    const { data } = await api.get("/api/orders/my");
     return data;
   },
 
   async remove(id: string) {
-    const { data } = await api.delete(`/orders/${id}`);
+    const { data } = await api.delete(`/api/orders/${id}`);
     return data as { ok: true };
   },
 };
