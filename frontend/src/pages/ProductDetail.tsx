@@ -66,7 +66,6 @@ export default function ProductDetail() {
     </div>
   );
 
-  // 👇 LA CORRECTION EST ICI
   // On pointe directement vers ton serveur Render pour récupérer le fichier 3D
   const stlUrl = `https://stlmarket.onrender.com/files/${encodeURIComponent(item.filename)}`;
 
