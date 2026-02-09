@@ -31,8 +31,8 @@ mongoose
 // 2. MIDDLEWARES
 // ==========================================
 const corsOptions: cors.CorsOptions = {
-  origin: "http://localhost:5173", 
-  credentials: true, 
+  origin: ["http://localhost:5173", "https://TON-LIEN-VERCEL.vercel.app"], 
+  credentials: true,
   methods: ["GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
 };
