@@ -10,7 +10,6 @@ import authRoutes from "./routes/authRoutes";
 import fileRoutes from "./routes/fileRoutes";
 import orderRoutes from "./routes/orderRoutes";
 import printRoutes from "./routes/printRoutes"; 
-// import adminPrintRoutes from "./routes/adminPrintRoutes"; // ❌ Plus besoin si tu as utilisé mon code unifié
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -28,10 +27,14 @@ mongoose
   });
 
 // ==========================================
-// 2. MIDDLEWARES
+// 2. MIDDLEWARES (CORS & JSON)
 // ==========================================
 const corsOptions: cors.CorsOptions = {
-  origin: ["http://localhost:5173", "https://TON-LIEN-VERCEL.vercel.app"], 
+  origin: [
+    "http://localhost:5173", // Ton PC (Frontend dev)
+    "http://localhost:3000", // Ton PC (Backend dev)
+    "https://stl-market.vercel.app", // Frontend en prod
+  ], 
   credentials: true,
   methods: ["GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
@@ -41,13 +44,14 @@ app.use(cors(corsOptions));
 app.use(express.json());
 
 // ==========================================
-// 3. FICHIERS STATIQUES
+// 3. FICHIERS STATIQUES (Stockage physique)
 // ==========================================
+// Render utilise process.cwd() pour trouver la racine
 const publicDir = path.join(process.cwd(), "public");
-const filesDir = path.join(publicDir, "files");
-const printsDir = path.join(publicDir, "print_requests"); // C'est ici que sont tes images uploadées
+const filesDir = path.join(publicDir, "files"); // Pour les STL du catalogue
+const printsDir = path.join(publicDir, "print_requests"); // Pour les uploads utilisateurs
 
-// Création automatique
+// Création automatique des dossiers s'ils n'existent pas
 [publicDir, filesDir, printsDir].forEach((dir) => {
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir, { recursive: true });
@@ -56,28 +60,27 @@ const printsDir = path.join(publicDir, "print_requests"); // C'est ici que sont 
 });
 
 // EXPOSITION DES DOSSIERS
+// URL pour télécharger : https://ton-backend.onrender.com/files/monfichier.stl
 app.use("/files", express.static(filesDir));
-app.use("/print_requests", express.static(printsDir)); // ✅ Important pour télécharger le STL
+app.use("/print_requests", express.static(printsDir)); 
 
 // ==========================================
-// 4. ROUTES API
+// 4. ROUTES API (Données JSON)
 // ==========================================
+// Toutes les routes API commencent par /api pour éviter les conflits
 app.use("/api/auth", authRoutes);
-app.use("/api/files", fileRoutes);
+app.use("/api/files", fileRoutes); // Renvoie le JSON des produits
 app.use("/api/orders", orderRoutes);
-
-// 👇 C'EST ICI LA CORRECTION IMPORTANTE 👇
-// On enlève le "s" pour matcher le frontend (/api/print/request)
 app.use("/api/print", printRoutes); 
 
-// Si tu utilisais l'ancienne route admin, on peut la retirer car printRoutes gère tout maintenant
-// app.use("/api/admin/prints", adminPrintRoutes);
-
-// Route de test
+// Route de test (Page d'accueil du backend)
 app.get("/", (_req, res) => {
   res.send(`
-    <h1>API STL Marketplace</h1>
-    <p>Statut: En ligne 🟢</p>
+    <div style="font-family: sans-serif; text-align: center; padding: 20px;">
+      <h1>API STL Marketplace</h1>
+      <p>Statut: En ligne 🟢</p>
+      <p>Base de données: ${mongoose.connection.readyState === 1 ? "Connectée 🟢" : "Déconnectée 🔴"}</p>
+    </div>
   `);
 });
 
