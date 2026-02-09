@@ -29,18 +29,17 @@ mongoose
 // ==========================================
 // 2. MIDDLEWARES (CORS & JSON)
 // ==========================================
-const corsOptions: cors.CorsOptions = {
-  origin: [
-    "http://localhost:5173", // Ton PC (Frontend dev)
-    "http://localhost:3000", // Ton PC (Backend dev)
-    "https://stl-market.vercel.app", // Frontend en prod
-  ], 
+
+// 👇 MODIFICATION MAJEURE ICI 👇
+// On utilise "origin: true" pour accepter dynamiquement ton site Vercel
+// peu importe l'URL exacte (preview, prod, www, etc.)
+app.use(cors({
+  origin: true, 
   credentials: true,
   methods: ["GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
-};
+}));
 
-app.use(cors(corsOptions));
 app.use(express.json());
 
 // ==========================================
