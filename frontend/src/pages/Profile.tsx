@@ -17,10 +17,8 @@ export default function Profile() {
         api.get("/api/orders/my"),
         api.get("/api/print/my")
       ]);
-
       setOrders(ordersRes.data.orders || []); 
       setPrints(Array.isArray(printsRes.data) ? printsRes.data : []);
-
     } catch (e) {
       console.error("Erreur chargement profil", e);
       if ((e as any).response?.status === 401) navigate("/login");
@@ -31,29 +29,26 @@ export default function Profile() {
 
   useEffect(() => { load(); }, []);
 
-  // 👇 FONCTION DE TÉLÉCHARGEMENT
-  const downloadFile = async (fileId: string, filename: string) => {
+  // 👇 NOUVELLE FONCTION DE TÉLÉCHARGEMENT CLOUDINARY
+  const downloadFile = async (fileId: string) => {
     try {
-      // On demande le fichier en précisant qu'on attend un 'blob' (fichier binaire)
-      const response = await api.get(`/api/files/download/${fileId}`, {
-        responseType: 'blob', 
-      });
-
-      // Création d'un lien temporaire pour forcer le navigateur à télécharger
-      const url = window.URL.createObjectURL(new Blob([response.data]));
-      const link = document.createElement('a');
-      link.href = url;
-      // On utilise le titre du produit comme nom de fichier
-      link.setAttribute('download', filename || `fichier_${fileId}.stl`);
-      document.body.appendChild(link);
-      link.click();
+      // 1. On demande l'URL de téléchargement sécurisée au backend
+      const response = await api.get(`/api/files/download/${fileId}`);
       
-      // Nettoyage
-      link.parentNode?.removeChild(link);
-      window.URL.revokeObjectURL(url);
-
+      if (response.data.downloadUrl) {
+        // 2. On utilise un lien invisible pour déclencher le téléchargement
+        const link = document.createElement('a');
+        link.href = response.data.downloadUrl;
+        // Cloudinary force déjà le nom, mais on peut ajouter une sécurité
+        link.setAttribute('target', '_blank'); 
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      } else {
+        throw new Error("URL de téléchargement non reçue");
+      }
     } catch (error) {
-      alert("Erreur : Impossible de télécharger. Vérifiez que vous avez bien acheté le produit.");
+      alert("Erreur : Impossible de récupérer le lien de téléchargement. Vérifiez vos achats.");
       console.error(error);
     }
   };
@@ -103,12 +98,12 @@ export default function Profile() {
                         <div key={o._id} className="card" style={{ padding: 16, background: "rgba(255,255,255,0.02)" }}>
                         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12 }}>
                             <div>
-                            <div style={{ fontWeight: 800, marginBottom: 4 }}>
-                                Commande du {new Date(o.createdAt).toLocaleDateString()}
-                            </div>
-                            <div style={{ opacity: 0.8, fontSize: 14 }}>
-                                Total: <span style={{color: "var(--primary)"}}>{o.totalPrice.toFixed(2)} €</span> • {o.items.length} article(s)
-                            </div>
+                                <div style={{ fontWeight: 800, marginBottom: 4 }}>
+                                    Commande du {new Date(o.createdAt).toLocaleDateString()}
+                                </div>
+                                <div style={{ opacity: 0.8, fontSize: 14 }}>
+                                    Total: <span style={{color: "var(--primary)"}}>{o.totalPrice.toFixed(2)} €</span> • {o.items.length} article(s)
+                                </div>
                             </div>
                             <button 
                                 className="btn" 
@@ -125,12 +120,13 @@ export default function Profile() {
                                 <div style={{ opacity: 0.8 }}>
                                     • {it.title} × {it.quantity} — {it.price.toFixed(2)} €
                                 </div>
-                                {/* 👇 LE BOUTON TÉLÉCHARGER EST ICI 👇 */}
+                                
+                                {/* BOUTON TÉLÉCHARGER ADAPTÉ */}
                                 {it.kind === 'file' && it.fileId && (
                                     <button 
                                         className="btn primary" 
                                         style={{ padding: "6px 14px", fontSize: 13 }}
-                                        onClick={() => downloadFile(it.fileId, `${it.title}.stl`)}
+                                        onClick={() => downloadFile(it.fileId)}
                                     >
                                         📥 Télécharger
                                     </button>
