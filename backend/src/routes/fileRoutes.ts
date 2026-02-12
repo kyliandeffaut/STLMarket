@@ -15,11 +15,11 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET
 });
 
-// Configuration du stockage avec nettoyage de nom simplifié
+// Configuration du stockage avec nettoyage de nom simplifié (évite les caractères bizarres)
 const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: async (req: any, file: any) => {
-    // Remplace tout ce qui n'est pas alphanumérique par "_" pour éviter les bugs de caractères
+    // On garde uniquement lettres et chiffres pour éviter les bugs d'encodage
     const cleanName = file.originalname.split('.')[0].replace(/[^a-zA-Z0-9]/g, '_');
 
     return {
@@ -40,7 +40,7 @@ r.get("/", async (_req, res) => {
   res.json(files);
 });
 
-// 2. AJOUTER UN FICHIER (Admin)
+// 2. AJOUTER UN FICHIER (Route POST pour l'Admin)
 r.post("/", requireAuth, upload.single("file"), async (req: any, res) => {
   try {
     const { title, category, price, description } = req.body;
@@ -65,7 +65,7 @@ r.post("/", requireAuth, upload.single("file"), async (req: any, res) => {
   }
 });
 
-// 3. TÉLÉCHARGEMENT (Correction : Force l'extension .stl)
+// 3. TÉLÉCHARGEMENT (Correction : Force l'extension .stl et le format raw)
 r.get("/download/:fileId", requireAuth, async (req: any, res) => {
   try {
     const fileId = req.params.fileId;
@@ -80,11 +80,11 @@ r.get("/download/:fileId", requireAuth, async (req: any, res) => {
       return res.status(403).json({ message: "Achat requis" });
     }
 
-    // Génération de l'URL avec le flag 'format' pour garantir le .stl
+    // Utilisation de cloudinary.url pour générer un lien forçant le téléchargement avec .stl
     const downloadUrl = cloudinary.url(file.filename, {
       resource_type: 'raw',
       flags: 'attachment',
-      format: 'stl', 
+      format: 'stl', // <--- Force l'extension .stl dans le lien
       sign_url: true
     });
 

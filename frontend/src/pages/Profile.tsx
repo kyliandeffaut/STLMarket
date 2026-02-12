@@ -29,30 +29,30 @@ export default function Profile() {
 
   useEffect(() => { load(); }, []);
 
-  // 👇 FONCTION DE TÉLÉCHARGEMENT OPTIMISÉE
+  // 👇 FONCTION DE TÉLÉCHARGEMENT OPTIMISÉE POUR CLOUDINARY
   const downloadFile = async (fileId: string) => {
     try {
       const response = await api.get(`/api/files/download/${fileId}`);
       
       if (response.data.downloadUrl) {
-        // Déclenche le téléchargement dans un nouvel onglet
+        // Crée un lien invisible et clique dessus pour déclencher le téléchargement
         const link = document.createElement('a');
         link.href = response.data.downloadUrl;
-        link.setAttribute('target', '_blank'); 
+        link.setAttribute('target', '_blank'); // Sécurité pour certains navigateurs
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
       } else {
-        throw new Error("Lien introuvable");
+        throw new Error("URL introuvable");
       }
     } catch (error) {
-      alert("Impossible de télécharger le fichier. Vérifiez vos accès.");
+      alert("Erreur : Impossible de télécharger le fichier. Vérifiez vos accès.");
       console.error(error);
     }
   };
 
   const removeOrder = async (id: string) => {
-    if(!window.confirm("Supprimer cette commande ?")) return;
+    if(!window.confirm("Supprimer cette commande de l'historique ?")) return;
     try {
         await api.delete(`/api/orders/${id}`);
         await load(); 
@@ -79,7 +79,6 @@ export default function Profile() {
     <div className="container" style={{ padding: "40px 20px" }}>
       <div className="card" style={{ padding: 24 }}>
         <h1>Mon espace</h1>
-
         {loading ? <p>Chargement...</p> : (
             <>
                 <div className="card" style={{ padding: 16, marginTop: 24, border: "1px solid var(--border)" }}>
@@ -110,7 +109,7 @@ export default function Profile() {
                     </div>
                 )}
                 </div>
-
+                {/* Section Impression 3D */}
                 <div className="card" style={{ padding: 16, marginTop: 24, border: "1px solid var(--border)" }}>
                 <h2>🖨️ Impressions 3D</h2>
                 {prints.length === 0 ? <p>Aucune demande.</p> : (
