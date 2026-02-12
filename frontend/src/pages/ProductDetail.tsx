@@ -39,103 +39,45 @@ export default function ProductDetail() {
 
   const onAdd = () => {
     if (!item) return;
-    addItem(
-      {
+    addItem({
         _id: item._id,
         kind: "file",
         title: item.title,
         price: item.price,
         category: item.category,
         filename: item.filename,
-      },
-      1
+      }, 1
     );
     setAdded(true);
     window.setTimeout(() => setAdded(false), 900);
   };
 
-  if (loading) return (
-    <div className="container" style={{ padding: 40, textAlign: "center" }}>
-      <div className="card">Chargement du produit...</div>
-    </div>
-  );
+  if (loading) return <div className="container" style={{ padding: 40, textAlign: "center" }}>Chargement...</div>;
+  if (!item) return <div className="container" style={{ padding: 40, textAlign: "center" }}>Produit introuvable.</div>;
 
-  if (!item) return (
-    <div className="container" style={{ padding: 40, textAlign: "center" }}>
-      <div className="card">Produit introuvable.</div>
-    </div>
-  );
-
-  // On pointe directement vers ton serveur Render pour récupérer le fichier 3D
-  const stlUrl = `https://stlmarket.onrender.com/files/${encodeURIComponent(item.filename)}`;
+  // ✅ CONFIGURATION CLOUDINARY (dvgdc8bq0 est ton Cloud Name)
+  const CLOUD_NAME = "dvgdc8bq0";
+  const stlUrl = `https://res.cloudinary.com/${CLOUD_NAME}/raw/upload/v1/stl_market/${encodeURIComponent(item.filename)}.stl`;
 
   return (
     <section className="container">
-      
-      {/* Utilisation de la classe CSS responsive */}
-      <div className="detail-grid">
+      <div className="detail-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px", marginTop: "20px" }}>
         
-        {/* --- VISUALISEUR 3D --- */}
-        <div 
-          className="card detail-card" 
-          style={{ 
-            padding: 0, 
-            overflow: "hidden", 
-            position: "relative",
-            background: "#0b0e14" // Fond sombre pour la 3D
-          }}
-        >
+        {/* VISUALISEUR */}
+        <div className="card" style={{ padding: 0, overflow: "hidden", background: "#0b0e14", borderRadius: "12px", height: "500px" }}>
           <STLViewer src={stlUrl} />
-          <div style={{ 
-            position: "absolute", bottom: 8, right: 12, 
-            fontSize: 11, color: "rgba(255,255,255,0.3)", 
-            pointerEvents: "none"
-          }}>
-            {item.filename}
-          </div>
         </div>
 
-        {/* --- INFORMATIONS --- */}
-        <div 
-          className="card detail-card" 
-          style={{ 
-            padding: "30px", 
-            display: "flex", 
-            flexDirection: "column"
-          }}
-        >
-          <h1 style={{ marginTop: 0, fontSize: "clamp(1.5rem, 4vw, 2rem)", lineHeight: 1.1 }}>
-            {item.title}
-          </h1>
+        {/* INFOS */}
+        <div className="card" style={{ padding: "30px", display: "flex", flexDirection: "column" }}>
+          <h1>{item.title}</h1>
+          <p style={{ color: "var(--text-muted)", flexGrow: 1 }}>{item.description || "Aucune description."}</p>
           
-          <div style={{ margin: "10px 0 20px 0", display: "flex", flexWrap: "wrap", gap: 10, fontSize: 14, color: "var(--text-muted)" }}>
-            <span style={{ background: "rgba(255,255,255,0.05)", padding: "4px 8px", borderRadius: 6 }}>
-              📂 {item.category}
-            </span>
-            <span style={{ padding: "4px 0" }}>⬇️ {item.downloads} téléchargements</span>
-          </div>
-
-          <p style={{ color: "var(--text-muted)", lineHeight: 1.6, flexGrow: 1, fontSize: "1rem" }}>
-            {item.description || "Description indisponible."}
-          </p>
-
-          <div style={{ borderTop: "1px solid var(--border)", paddingTop: 20, marginTop: "auto" }}>
-            {/* Zone Prix + Bouton responsive */}
-            <div className="action-row">
-              <div>
-                <div style={{ fontSize: 12, color: "var(--text-muted)" }}>Prix unitaire</div>
-                <div style={{ fontSize: "28px", fontWeight: "bold", color: "var(--primary)" }}>
-                  {item.price.toFixed(2)} €
-                </div>
-              </div>
-              
-              <button 
-                className={`btn ${added ? "" : "primary"}`} 
-                onClick={onAdd}
-                style={{ padding: "12px 24px", fontSize: "1rem", flexGrow: 1, maxWidth: "200px" }}
-                disabled={added}
-              >
-                {added ? "Dans le panier ✅" : "Ajouter au panier 🛒"}
+          <div style={{ marginTop: "auto", borderTop: "1px solid var(--border)", paddingTop: "20px" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <span style={{ fontSize: "24px", fontWeight: "bold" }}>{item.price.toFixed(2)} €</span>
+              <button className={`btn ${added ? "" : "primary"}`} onClick={onAdd} disabled={added}>
+                {added ? "Ajouté !" : "Ajouter au panier"}
               </button>
             </div>
           </div>
