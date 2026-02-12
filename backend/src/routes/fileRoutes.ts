@@ -7,11 +7,13 @@ import fs from "fs";
 
 const r = Router();
 
+// 1. Liste
 r.get("/", async (_req, res) => {
   const files = await File.find().sort({ createdAt: -1 });
   res.json(files);
 });
 
+// 2. Détail
 r.get("/:title", async (req, res) => {
   const title = decodeURIComponent(req.params.title);
   const file = await File.findOne({ title });
@@ -19,47 +21,35 @@ r.get("/:title", async (req, res) => {
   res.json(file);
 });
 
-// ROUTE DE TÉLÉCHARGEMENT
-// On utilise 'requireAuth' au lieu de 'checkToken'
+// 👇 3. LA ROUTE QUE TU AS OUBLIÉE DANS VS CODE 👇
 r.get("/download/:fileId", requireAuth, async (req: any, res) => {
   try {
     const fileId = req.params.fileId;
-    
-    // Et ton token contient 'id', pas 'userId'
     const userId = req.auth.id; 
     const userRole = req.auth.role;
 
-    // 1. Récupérer le fichier
+    // A. Trouver le fichier
     const file = await File.findById(fileId);
-    if (!file) return res.status(404).json({ message: "Fichier introuvable" });
+    if (!file) return res.status(404).json({ message: "Fichier introuvable en base." });
 
-    // 2. SÉCURITÉ : Vérifier l'achat
-    const order = await Order.findOne({
-      userId: userId,
-      "items.fileId": fileId
-    });
-
-    // Si pas de commande (et que l'utilisateur n'est pas admin), on bloque
+    // B. Vérifier l'achat
+    const order = await Order.findOne({ userId: userId, "items.fileId": fileId });
+    
+    // Si pas acheté et pas admin -> Stop
     if (!order && userRole !== 'admin') {
-      return res.status(403).json({ message: "Vous devez acheter ce fichier pour le télécharger." });
+      return res.status(403).json({ message: "Achat requis." });
     }
 
-    // 3. Envoyer le fichier
-    // On remonte de 2 dossiers (routes -> src -> backend -> uploads)
-    // Assure-toi que le dossier 'uploads' est bien à la racine du backend
+    // C. Télécharger
     const filePath = path.join(__dirname, "../../uploads", file.filename);
-
     if (fs.existsSync(filePath)) {
-      // On donne un nom propre au fichier téléchargé (Titre du produit + .stl)
-      const downloadName = `${file.title}.stl`; 
-      res.download(filePath, downloadName);
+      res.download(filePath, `${file.title}.stl`);
     } else {
-      console.error("Fichier manquant :", filePath);
-      res.status(404).json({ message: "Fichier physique introuvable sur le serveur." });
+      res.status(404).json({ message: "Fichier physique manquant (Render a redémarré ?)." });
     }
 
   } catch (error) {
-    console.error("Erreur download:", error);
+    console.error(error);
     res.status(500).json({ message: "Erreur serveur" });
   }
 });
