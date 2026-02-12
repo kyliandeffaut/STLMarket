@@ -5,12 +5,11 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { STLLoader } from "three/examples/jsm/loaders/STLLoader.js";
 
 type Props = {
-  src?: string;             // ex: "/files/1.stl"
-  autoRotate?: boolean;     // rotation douce auto
-  background?: string;      // couleur fond
-  showGround?: boolean;     // afficher le sol (true par défaut)
-  wireframe?: boolean;      // mode fil de fer
-  aspectRatio?: number;     // ratio largeur/hauteur si tu veux forcer (ex: 16/10)
+  src?: string;
+  autoRotate?: boolean;
+  background?: string;
+  showGround?: boolean;
+  wireframe?: boolean;
 };
 
 export default function STLViewer({
@@ -19,183 +18,170 @@ export default function STLViewer({
   background = "#0e1220",
   showGround = true,
   wireframe = false,
-  aspectRatio, // si non fourni, on prend la taille réelle du parent
 }: Props) {
-  const mountRef = useRef<HTMLDivElement | null>(null);
-  const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
-  const controlsRef = useRef<OrbitControls | null>(null);
-  const groundRef = useRef<THREE.Mesh | null>(null);
-  const animRef = useRef<number | null>(null);
-  const resizeObsRef = useRef<ResizeObserver | null>(null);
-
+  const mountRef = useRef<HTMLDivElement>(null);
+  
   useEffect(() => {
-    const container = mountRef.current!;
+    if (!mountRef.current) return;
+    
+    // --- 1. CONFIGURATION SCÈNE ---
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(background);
 
-    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    // Lumières
+    const hemiLight = new THREE.HemisphereLight(0xffffff, 0x444444, 0.8);
+    hemiLight.position.set(0, 20, 0);
+    scene.add(hemiLight);
+
+    const dirLight = new THREE.DirectionalLight(0xffffff, 1);
+    dirLight.position.set(10, 20, 10);
+    dirLight.castShadow = true;
+    scene.add(dirLight);
+
+    // Renderer
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    renderer.setPixelRatio(window.devicePixelRatio);
     renderer.shadowMap.enabled = true;
-    container.innerHTML = "";
+    
+    // On attache le canvas au div
+    const container = mountRef.current;
+    // On vide le conteneur au cas où (re-render)
+    while (container.firstChild) {
+      container.removeChild(container.firstChild);
+    }
     container.appendChild(renderer.domElement);
-    rendererRef.current = renderer;
 
     // Caméra
-    const camera = new THREE.PerspectiveCamera(50, 1, 0.1, 5000);
-    camera.position.set(140, 120, 140);
+    const camera = new THREE.PerspectiveCamera(50, 1, 0.1, 2000);
+    camera.position.set(0, 50, 100); // Position par défaut
 
     // Contrôles
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
-    controls.dampingFactor = 0.06;
+    controls.dampingFactor = 0.05;
     controls.autoRotate = autoRotate;
-    controls.autoRotateSpeed = 1.2;
-    controlsRef.current = controls;
+    controls.autoRotateSpeed = 2.0;
 
-    // Lumières
-    const hemi = new THREE.HemisphereLight(0xffffff, 0x222233, 0.9);
-    scene.add(hemi);
-    const dir = new THREE.DirectionalLight(0xffffff, 0.9);
-    dir.position.set(100, 150, 100);
-    dir.castShadow = true;
-    scene.add(dir);
-
-    // Sol (facultatif)
-    if (showGround) {
-      const ground = new THREE.Mesh(
-        new THREE.CircleGeometry(200, 64),
-        new THREE.MeshStandardMaterial({
-          color: 0x111620,
-          metalness: 0.1,
-          roughness: 0.9,
-        })
-      );
-      ground.rotation.x = -Math.PI / 2;
-      ground.receiveShadow = true;
-      scene.add(ground);
-      groundRef.current = ground;
-    }
-
-    // === CHARGEMENT STL ===
+    // --- 2. FONCTION DE CHARGEMENT ---
     const loader = new STLLoader();
 
-    const addMeshToScene = (geom: THREE.BufferGeometry) => {
-      // Calcul des dimensions
-      geom.computeBoundingBox();
-      geom.computeBoundingSphere();
+    if (src) {
+      loader.load(
+        src,
+        (geometry) => {
+          // A. Centrage de la géométrie
+          geometry.computeBoundingBox();
+          geometry.center(); // ✅ Méthode native Three.js pour centrer parfaitement
 
-      const box = geom.boundingBox!;
-      const sphere = geom.boundingSphere!;
+          // B. Calcul de l'échelle pour que l'objet ait une taille standard
+          geometry.computeBoundingSphere();
+          const boundingSphere = geometry.boundingSphere;
+          const radius = boundingSphere ? boundingSphere.radius : 1;
+          
+          // On veut que l'objet fasse environ 50 unités de large à l'écran
+          const targetSize = 50; 
+          const scaleFactor = targetSize / radius;
 
-      // Recentrage géométrique
-      const center = new THREE.Vector3();
-      box.getCenter(center);
-      geom.translate(-center.x, -center.y, -center.z);
+          // C. Création du Mesh
+          const material = new THREE.MeshStandardMaterial({
+            color: 0x60a5fa, // Bleu joli
+            metalness: 0.2,
+            roughness: 0.5,
+            wireframe: wireframe,
+          });
+          
+          const mesh = new THREE.Mesh(geometry, material);
+          
+          // On applique l'échelle
+          mesh.scale.set(scaleFactor, scaleFactor, scaleFactor);
+          
+          // On le remonte un peu pour qu'il ne soit pas "dans" le sol
+          // (Puisqu'on l'a centré, la moitié est en dessous de 0)
+          if (geometry.boundingBox) {
+             const height = (geometry.boundingBox.max.y - geometry.boundingBox.min.y) * scaleFactor;
+             mesh.position.y = height / 2; 
+          }
 
-      // Création du mesh
-      const material = new THREE.MeshStandardMaterial({
-        color: 0x89b9ff,
-        metalness: 0.15,
-        roughness: 0.35,
-        wireframe,
-      });
-      const mesh = new THREE.Mesh(geom, material);
-      mesh.castShadow = true;
+          mesh.castShadow = true;
+          mesh.receiveShadow = true;
+          scene.add(mesh);
 
-      // Mise à l’échelle uniforme
-      const radius = Math.max(sphere.radius, 1e-6);
-      const target = 80; // taille visuelle
-      const scale = target / radius;
-      mesh.scale.setScalar(scale);
+          // D. Sol (Optionnel)
+          if (showGround) {
+            const planeGeometry = new THREE.PlaneGeometry(500, 500);
+            const planeMaterial = new THREE.MeshPhongMaterial({ 
+                color: 0x111827, 
+                depthWrite: false 
+            });
+            const plane = new THREE.Mesh(planeGeometry, planeMaterial);
+            plane.rotation.x = -Math.PI / 2;
+            plane.receiveShadow = true;
+            scene.add(plane);
+            
+            // Grille pour faire joli
+            const grid = new THREE.GridHelper(500, 50, 0x444444, 0x222222);
+            grid.position.y = 0.1;
+            grid.material.opacity = 0.4;
+            grid.material.transparent = true;
+            scene.add(grid);
+          }
+        },
+        undefined,
+        (error) => {
+          console.error("Erreur chargement STL:", error);
+        }
+      );
+    }
 
-      scene.add(mesh);
-
-      // Ajustement du sol
-      if (showGround && groundRef.current) {
-        const minY = box.min.y * scale;
-        groundRef.current.position.y = minY - 2;
-        groundRef.current.scale.setScalar(Math.max(target * 3, 200));
-      }
-
-      // Caméra / contrôles
-      const dist = target * 2.6;
-      camera.position.set(dist, dist * 0.85, dist);
-      camera.near = Math.max(target / 500, 0.05);
-      camera.far = target * 50;
-      camera.updateProjectionMatrix();
-      controls.target.set(0, 0, 0);
-      controls.maxDistance = target * 10;
-      controls.update();
-    };
-
-    const onError = () => {
-      // Fallback : torus knot si le STL échoue
-      const g = new THREE.TorusKnotGeometry(20, 6, 150, 16);
-      addMeshToScene(g);
-    };
-
-    if (src) loader.load(src, addMeshToScene, undefined, onError);
-    else onError();
-
-    // === Rendu continu ===
-    const tick = () => {
-      animRef.current = requestAnimationFrame(tick);
+    // --- 3. ANIMATION & RESIZE ---
+    let animationId: number;
+    const animate = () => {
+      animationId = requestAnimationFrame(animate);
       controls.update();
       renderer.render(scene, camera);
     };
+    animate();
 
-    // === Resize responsive ===
-    const applySize = (w: number, h: number) => {
-      if (aspectRatio && aspectRatio > 0) h = Math.round(w / aspectRatio);
-      renderer.setSize(w, h, false);
-      camera.aspect = w / h;
+    // Gestion du redimensionnement (Responsive)
+    const handleResize = () => {
+      if (!container) return;
+      const width = container.clientWidth;
+      const height = container.clientHeight;
+      
+      renderer.setSize(width, height);
+      camera.aspect = width / height;
       camera.updateProjectionMatrix();
     };
 
-    const ro = new ResizeObserver((entries) => {
-      const entry = entries[0];
-      const cr = entry.contentRect;
-      applySize(Math.floor(cr.width), Math.floor(cr.height));
-    });
-    ro.observe(container);
-    resizeObsRef.current = ro;
+    // On écoute le resize
+    const resizeObserver = new ResizeObserver(handleResize);
+    resizeObserver.observe(container);
+    handleResize(); // Appel initial
 
-    // Premier sizing
-    const rect = container.getBoundingClientRect();
-    applySize(rect.width, rect.height);
-
-    tick();
-
-    // Cleanup
+    // Nettoyage
     return () => {
-      if (animRef.current) cancelAnimationFrame(animRef.current);
-      resizeObsRef.current?.disconnect();
+      cancelAnimationFrame(animationId);
+      resizeObserver.disconnect();
       controls.dispose();
       renderer.dispose();
-      scene.traverse((obj) => {
-        if ((obj as any).isMesh) {
-          const m = obj as THREE.Mesh;
-          m.geometry?.dispose();
-          if (Array.isArray(m.material))
-            m.material.forEach((mat) => mat.dispose());
-          else (m.material as THREE.Material)?.dispose();
-        }
-      });
-      container.innerHTML = "";
+      if (container.contains(renderer.domElement)) {
+        container.removeChild(renderer.domElement);
+      }
     };
-  }, [src, autoRotate, background, showGround, wireframe, aspectRatio]);
+  }, [src, autoRotate, background, showGround, wireframe]);
 
   return (
-    <div
-      ref={mountRef}
-      className="card"
-      style={{
-        width: "100%",
-        height: "clamp(320px, 45vh, 560px)",
+    <div 
+      ref={mountRef} 
+      style={{ 
+        width: "100%", 
+        height: "100%", 
+        minHeight: "400px", // Hauteur minimale garantie
+        background: background,
+        borderRadius: "12px",
         overflow: "hidden",
-        borderRadius: "var(--radius)",
-        padding: 0,
-      }}
+        position: "relative"
+      }} 
     />
   );
 }
