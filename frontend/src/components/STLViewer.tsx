@@ -23,7 +23,13 @@ export default function STLViewer({ src, autoRotate = true }: Props) {
     const scene = new THREE.Scene();
     scene.background = new THREE.Color("#0b0e14");
 
-    const camera = new THREE.PerspectiveCamera(50, container.clientWidth / container.clientHeight, 0.1, 2000);
+    const camera = new THREE.PerspectiveCamera(
+      50, 
+      container.clientWidth / container.clientHeight, 
+      0.1, 
+      2000
+    );
+    
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setSize(container.clientWidth, container.clientHeight);
     renderer.setPixelRatio(window.devicePixelRatio);
@@ -32,12 +38,12 @@ export default function STLViewer({ src, autoRotate = true }: Props) {
     container.appendChild(renderer.domElement);
 
     scene.add(new THREE.HemisphereLight(0xffffff, 0x444444, 1.5));
+    
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.autoRotate = autoRotate;
     controls.enableDamping = true;
 
     const loader = new STLLoader();
-    // ✅ PERMET DE CHARGER DEPUIS CLOUDINARY
     loader.setPath("");
     (loader as any).crossOrigin = 'anonymous';
 
@@ -45,15 +51,36 @@ export default function STLViewer({ src, autoRotate = true }: Props) {
       src,
       (geometry) => {
         setLoading(false);
+
+        // ✅ CORRECTION DE LA POSITION (Droit au lieu de couché)
+        // On pivote la géométrie de -90 degrés sur l'axe X
+        geometry.rotateX(-Math.PI / 2);
+
+        // Centrage de l'objet après rotation
         geometry.center();
-        const material = new THREE.MeshStandardMaterial({ color: 0x60a5fa, metalness: 0.5, roughness: 0.2 });
+        
+        const material = new THREE.MeshStandardMaterial({ 
+          color: 0x60a5fa, 
+          metalness: 0.5, 
+          roughness: 0.2 
+        });
+        
         const mesh = new THREE.Mesh(geometry, material);
+
+        // On calcule la hauteur pour poser l'objet sur la grille (Y=0)
+        geometry.computeBoundingBox();
+        if (geometry.boundingBox) {
+          const height = geometry.boundingBox.max.y - geometry.boundingBox.min.y;
+          mesh.position.y = height / 2;
+        }
+        
         scene.add(mesh);
 
+        // Ajustement automatique de la caméra pour cadrer l'objet
         geometry.computeBoundingSphere();
         const radius = geometry.boundingSphere?.radius || 50;
         camera.position.set(radius * 2, radius * 2, radius * 2);
-        controls.target.set(0, 0, 0);
+        controls.target.set(0, mesh.position.y, 0);
         controls.update();
       },
       undefined,
@@ -75,6 +102,7 @@ export default function STLViewer({ src, autoRotate = true }: Props) {
     return () => {
       cancelAnimationFrame(animationId);
       renderer.dispose();
+      controls.dispose();
     };
   }, [src, autoRotate]);
 
@@ -88,6 +116,13 @@ export default function STLViewer({ src, autoRotate = true }: Props) {
 }
 
 const msgStyle: React.CSSProperties = {
-  position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)",
-  background: "rgba(0,0,0,0.8)", padding: "12px 20px", borderRadius: "20px", color: "white", zIndex: 10
+  position: "absolute", 
+  top: "50%", 
+  left: "50%", 
+  transform: "translate(-50%, -50%)",
+  background: "rgba(0,0,0,0.8)", 
+  padding: "12px 20px", 
+  borderRadius: "20px", 
+  color: "white", 
+  zIndex: 10
 };
