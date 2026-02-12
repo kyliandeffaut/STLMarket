@@ -15,19 +15,16 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET
 });
 
-// Configuration du stockage Cloudinary pour Multer
+// Configuration du stockage avec nettoyage de nom simplifié
 const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: async (req: any, file: any) => {
-    // On nettoie le nom du fichier
-    const cleanName = file.originalname.split('.')[0]
-      .replace(/\s+/g, '_')
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "");
+    // Remplace tout ce qui n'est pas alphanumérique par "_" pour éviter les bugs de caractères
+    const cleanName = file.originalname.split('.')[0].replace(/[^a-zA-Z0-9]/g, '_');
 
     return {
       folder: 'stl_market',
-      resource_type: 'raw', // Indispensable pour le .stl
+      resource_type: 'raw', 
       public_id: `${cleanName}_${Date.now()}`,
     };
   },
@@ -43,12 +40,10 @@ r.get("/", async (_req, res) => {
   res.json(files);
 });
 
-// 2. AJOUTER UN FICHIER (Route POST pour l'Admin)
-// C'est cette route qui manquait pour que l'upload fonctionne vers Cloudinary
+// 2. AJOUTER UN FICHIER (Admin)
 r.post("/", requireAuth, upload.single("file"), async (req: any, res) => {
   try {
     const { title, category, price, description } = req.body;
-    
     if (!req.file) return res.status(400).json({ error: "Fichier STL manquant" });
 
     const newFile = new File({
@@ -56,20 +51,21 @@ r.post("/", requireAuth, upload.single("file"), async (req: any, res) => {
       category,
       price: parseFloat(price),
       description,
-      // On enregistre le 'filename' Cloudinary (ex: stl_market/nom_fichier)
-      filename: req.file.path || req.file.filename, 
+      filename: req.file.filename, 
       ownerId: req.auth.id
     });
 
     await newFile.save();
     res.status(201).json(newFile);
-  } catch (error) {
-    console.error("Erreur Upload:", error);
+  } catch (error: any) {
+    if (error.code === 11000) {
+        return res.status(400).json({ error: "Ce titre existe déjà. Choisissez un autre nom." });
+    }
     res.status(500).json({ error: "Erreur lors de la mise en vente" });
   }
 });
 
-// 3. TÉLÉCHARGEMENT
+// 3. TÉLÉCHARGEMENT (Correction : Force l'extension .stl)
 r.get("/download/:fileId", requireAuth, async (req: any, res) => {
   try {
     const fileId = req.params.fileId;
@@ -84,17 +80,13 @@ r.get("/download/:fileId", requireAuth, async (req: any, res) => {
       return res.status(403).json({ message: "Achat requis" });
     }
 
-    // On génère l'URL Cloudinary
-    // Si 'file.filename' est une URL complète, on l'utilise, sinon on génère
-    let downloadUrl = file.filename;
-    
-    if (!downloadUrl.startsWith('http')) {
-        downloadUrl = cloudinary.url(file.filename, {
-            resource_type: 'raw',
-            flags: 'attachment',
-            sign_url: true
-        });
-    }
+    // Génération de l'URL avec le flag 'format' pour garantir le .stl
+    const downloadUrl = cloudinary.url(file.filename, {
+      resource_type: 'raw',
+      flags: 'attachment',
+      format: 'stl', 
+      sign_url: true
+    });
 
     res.json({ downloadUrl });
   } catch (error) {

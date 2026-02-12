@@ -29,32 +29,30 @@ export default function Profile() {
 
   useEffect(() => { load(); }, []);
 
-  // 👇 NOUVELLE FONCTION DE TÉLÉCHARGEMENT CLOUDINARY
+  // 👇 FONCTION DE TÉLÉCHARGEMENT OPTIMISÉE
   const downloadFile = async (fileId: string) => {
     try {
-      // 1. On demande l'URL de téléchargement sécurisée au backend
       const response = await api.get(`/api/files/download/${fileId}`);
       
       if (response.data.downloadUrl) {
-        // 2. On utilise un lien invisible pour déclencher le téléchargement
+        // Déclenche le téléchargement dans un nouvel onglet
         const link = document.createElement('a');
         link.href = response.data.downloadUrl;
-        // Cloudinary force déjà le nom, mais on peut ajouter une sécurité
         link.setAttribute('target', '_blank'); 
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
       } else {
-        throw new Error("URL de téléchargement non reçue");
+        throw new Error("Lien introuvable");
       }
     } catch (error) {
-      alert("Erreur : Impossible de récupérer le lien de téléchargement. Vérifiez vos achats.");
+      alert("Impossible de télécharger le fichier. Vérifiez vos accès.");
       console.error(error);
     }
   };
 
   const removeOrder = async (id: string) => {
-    if(!window.confirm("Supprimer cette commande de l'historique ?")) return;
+    if(!window.confirm("Supprimer cette commande ?")) return;
     try {
         await api.delete(`/api/orders/${id}`);
         await load(); 
@@ -65,16 +63,14 @@ export default function Profile() {
 
   const addPrintQuoteToCart = (r: any) => {
     if (r.status !== "quoted" || r.quotePrice == null) return;
-    addItem(
-      {
+    addItem({
         _id: `print_${r._id}`, 
         kind: "print",
         title: `Impression 3D: ${r.originalName}`,
         price: r.quotePrice,
         category: "Impression 3D",
         filename: r.storedName,
-      },
-      1 
+      }, 1 
     );
     alert("Ajouté au panier ✅");
   };
@@ -82,54 +78,29 @@ export default function Profile() {
   return (
     <div className="container" style={{ padding: "40px 20px" }}>
       <div className="card" style={{ padding: 24 }}>
-        <h1 style={{ marginTop: 0 }}>Mon espace</h1>
+        <h1>Mon espace</h1>
 
-        {loading ? <p>Chargement des données...</p> : (
+        {loading ? <p>Chargement...</p> : (
             <>
-                {/* SECTION COMMANDES */}
                 <div className="card" style={{ padding: 16, marginTop: 24, border: "1px solid var(--border)" }}>
-                <h2 style={{ marginTop: 0 }}>📦 Historique d’achats</h2>
-
-                {orders.length === 0 ? (
-                    <p style={{ opacity: 0.6 }}>Aucun achat pour l’instant.</p>
-                ) : (
+                <h2>📦 Historique d’achats</h2>
+                {orders.length === 0 ? <p>Aucun achat.</p> : (
                     <div style={{ display: "grid", gap: 16 }}>
                     {orders.map((o) => (
                         <div key={o._id} className="card" style={{ padding: 16, background: "rgba(255,255,255,0.02)" }}>
-                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12 }}>
+                        <div style={{ display: "flex", justifyContent: "space-between" }}>
                             <div>
-                                <div style={{ fontWeight: 800, marginBottom: 4 }}>
-                                    Commande du {new Date(o.createdAt).toLocaleDateString()}
-                                </div>
-                                <div style={{ opacity: 0.8, fontSize: 14 }}>
-                                    Total: <span style={{color: "var(--primary)"}}>{o.totalPrice.toFixed(2)} €</span> • {o.items.length} article(s)
-                                </div>
+                                <div style={{ fontWeight: 800 }}>Commande du {new Date(o.createdAt).toLocaleDateString()}</div>
+                                <div style={{ opacity: 0.8, fontSize: 14 }}>Total: {o.totalPrice.toFixed(2)} €</div>
                             </div>
-                            <button 
-                                className="btn" 
-                                style={{color: "var(--danger)", borderColor: "rgba(248,81,73,0.3)", background: "transparent", fontSize: 12, padding: "4px 8px"}}
-                                onClick={() => removeOrder(o._id)}
-                            >
-                            ✕
-                            </button>
+                            <button className="btn" style={{color: "var(--danger)"}} onClick={() => removeOrder(o._id)}>✕</button>
                         </div>
-
-                        <div style={{ marginTop: 12, paddingTop: 12, borderTop: "1px solid rgba(255,255,255,0.1)", fontSize: 14 }}>
+                        <div style={{ marginTop: 12, borderTop: "1px solid rgba(255,255,255,0.1)" }}>
                             {o.items.map((it: any, idx: number) => (
-                            <div key={idx} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-                                <div style={{ opacity: 0.8 }}>
-                                    • {it.title} × {it.quantity} — {it.price.toFixed(2)} €
-                                </div>
-                                
-                                {/* BOUTON TÉLÉCHARGER ADAPTÉ */}
+                            <div key={idx} style={{ display: "flex", justifyContent: "space-between", marginTop: 8 }}>
+                                <span>• {it.title}</span>
                                 {it.kind === 'file' && it.fileId && (
-                                    <button 
-                                        className="btn primary" 
-                                        style={{ padding: "6px 14px", fontSize: 13 }}
-                                        onClick={() => downloadFile(it.fileId)}
-                                    >
-                                        📥 Télécharger
-                                    </button>
+                                    <button className="btn primary" onClick={() => downloadFile(it.fileId)}>📥 Télécharger</button>
                                 )}
                             </div>
                             ))}
@@ -140,41 +111,17 @@ export default function Profile() {
                 )}
                 </div>
 
-                {/* SECTION IMPRESSIONS */}
                 <div className="card" style={{ padding: 16, marginTop: 24, border: "1px solid var(--border)" }}>
-                <h2 style={{ marginTop: 0 }}>🖨️ Demandes d’impression 3D</h2>
-
-                {prints.length === 0 ? (
-                    <p style={{ opacity: 0.6 }}>Aucune demande en cours.</p>
-                ) : (
+                <h2>🖨️ Impressions 3D</h2>
+                {prints.length === 0 ? <p>Aucune demande.</p> : (
                     <div style={{ display: "grid", gap: 16 }}>
                     {prints.map((r) => (
                         <div key={r._id} className="card" style={{ padding: 16, background: "rgba(255,255,255,0.02)" }}>
-                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                            <div style={{ fontWeight: 800, fontSize: "1.1rem" }}>{r.originalName}</div>
-                            {r.status === "quoted" && (
-                                <button className="btn primary" onClick={() => addPrintQuoteToCart(r)}>
-                                    Ajouter au panier 🛒
-                                </button>
-                            )}
+                        <div style={{ display: "flex", justifyContent: "space-between" }}>
+                            <div style={{ fontWeight: 800 }}>{r.originalName}</div>
+                            {r.status === "quoted" && <button className="btn primary" onClick={() => addPrintQuoteToCart(r)}>Ajouter au panier 🛒</button>}
                         </div>
-                        
-                        <div style={{ opacity: 0.8, fontSize: 14, marginTop: 8 }}>
-                            Statut: 
-                            {r.status === "pending" && <span style={{color: "orange", marginLeft: 6}}>En attente ⏳</span>}
-                            {r.status === "quoted" && <span style={{color: "#4ade80", marginLeft: 6}}>Devis reçu ! ✅</span>}
-                            {r.status === "paid" && <span style={{color: "var(--primary)", marginLeft: 6}}>Payé 🚀</span>}
-                            
-                            {r.quotePrice != null && (
-                                <span style={{ marginLeft: 10, fontWeight: "bold" }}>• Prix: {r.quotePrice.toFixed(2)} €</span>
-                            )}
-                        </div>
-
-                        {r.adminMessage && (
-                            <div style={{ marginTop: 8, padding: 8, background: "rgba(255,255,0,0.1)", borderRadius: 4, fontSize: 14 }}>
-                            👮 Admin: {r.adminMessage}
-                            </div>
-                        )}
+                        <div style={{ opacity: 0.8, fontSize: 14 }}>Statut: {r.status}</div>
                         </div>
                     ))}
                     </div>
