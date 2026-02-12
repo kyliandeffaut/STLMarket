@@ -59,11 +59,12 @@ export default function ProductDetail() {
   const CLOUD_NAME = "dvgdc8bq0";
 
   /**
-   * 1. On nettoie le nom (enlève le .stl s'il est là)
-   * 2. On ajoute un timestamp (?t=) pour tuer le cache du navigateur
+   * ✅ SOLUTION RADICALE POUR L'AFFICHAGE
+   * On retire l'extension .stl et on utilise l'URL la plus simple possible.
+   * On évite "fl_attachment" qui cause la 404 dans le viewer.
    */
   const cleanFilename = item.filename.replace(/\.[^/.]+$/, "");
-  const stlUrl = `https://res.cloudinary.com/${CLOUD_NAME}/raw/upload/v1/${encodeURIComponent(cleanFilename)}?t=${Date.now()}`;
+  const stlUrl = `https://res.cloudinary.com/${CLOUD_NAME}/raw/upload/v1/${encodeURIComponent(cleanFilename)}`;
 
   return (
     <section className="container" style={{ marginTop: "40px" }}>
