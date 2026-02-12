@@ -81,7 +81,7 @@ export default function Profile() {
         {loading ? <p>Chargement...</p> : (
             <>
                 <div className="card" style={{ padding: 16, marginTop: 24, border: "1px solid var(--border)" }}>
-                <h2>📦 Historique d’achats</h2>
+                <h2>📦 Historique d'achats</h2>
                 {orders.length === 0 ? <p>Aucun achat.</p> : (
                     <div style={{ display: "grid", gap: 16 }}>
                     {orders.map((o) => (
