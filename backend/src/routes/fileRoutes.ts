@@ -20,7 +20,6 @@ r.get("/:title", async (req, res) => {
 });
 
 // ROUTE DE TÉLÉCHARGEMENT
-// On utilise 'requireAuth' au lieu de 'checkToken'
 r.get("/download/:fileId", requireAuth, async (req: any, res) => {
   try {
     const fileId = req.params.fileId;
