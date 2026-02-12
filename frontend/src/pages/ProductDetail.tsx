@@ -58,13 +58,12 @@ export default function ProductDetail() {
   // --- CONFIGURATION CLOUDINARY ---
   const CLOUD_NAME = "dvgdc8bq0";
 
-  /**
-   * ✅ SOLUTION RADICALE POUR L'AFFICHAGE
-   * On retire l'extension .stl et on utilise l'URL la plus simple possible.
-   * On évite "fl_attachment" qui cause la 404 dans le viewer.
-   */
-  const cleanFilename = item.filename.replace(/\.[^/.]+$/, "");
-  const stlUrl = `https://res.cloudinary.com/${CLOUD_NAME}/raw/upload/v1/${encodeURIComponent(cleanFilename)}`;
+  // ✅ NETTOYAGE RADICAL DU NOM
+  // On retire l'extension .stl si elle est dans MongoDB pour avoir le Public ID pur
+  const cleanFilename = item.filename.split('.')[0].trim();
+  
+  // URL sans 'fl_attachment' et sans extension pour l'affichage 3D
+  const stlUrl = `https://res.cloudinary.com/${CLOUD_NAME}/raw/upload/v1/${encodeURIComponent(cleanFilename)}?t=${Date.now()}`;
 
   return (
     <section className="container" style={{ marginTop: "40px" }}>
@@ -96,7 +95,6 @@ export default function ProductDetail() {
             </div>
           </div>
         </div>
-
       </div>
     </section>
   );
