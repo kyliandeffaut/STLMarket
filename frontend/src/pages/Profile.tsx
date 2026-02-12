@@ -29,16 +29,16 @@ export default function Profile() {
 
   useEffect(() => { load(); }, []);
 
-  // 👇 FONCTION DE TÉLÉCHARGEMENT OPTIMISÉE POUR CLOUDINARY
+  // Fonction de téléchargement
   const downloadFile = async (fileId: string) => {
     try {
       const response = await api.get(`/api/files/download/${fileId}`);
       
       if (response.data.downloadUrl) {
-        // Crée un lien invisible et clique dessus pour déclencher le téléchargement
+        // Déclenche le téléchargement
         const link = document.createElement('a');
         link.href = response.data.downloadUrl;
-        link.setAttribute('target', '_blank'); // Sécurité pour certains navigateurs
+        link.setAttribute('target', '_blank'); 
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
@@ -46,13 +46,12 @@ export default function Profile() {
         throw new Error("URL introuvable");
       }
     } catch (error) {
-      alert("Erreur : Impossible de télécharger le fichier. Vérifiez vos accès.");
-      console.error(error);
+      alert("Erreur de téléchargement. Vérifiez vos accès.");
     }
   };
 
   const removeOrder = async (id: string) => {
-    if(!window.confirm("Supprimer cette commande de l'historique ?")) return;
+    if(!window.confirm("Supprimer cette commande ?")) return;
     try {
         await api.delete(`/api/orders/${id}`);
         await load(); 
@@ -104,23 +103,6 @@ export default function Profile() {
                             </div>
                             ))}
                         </div>
-                        </div>
-                    ))}
-                    </div>
-                )}
-                </div>
-                {/* Section Impression 3D */}
-                <div className="card" style={{ padding: 16, marginTop: 24, border: "1px solid var(--border)" }}>
-                <h2>🖨️ Impressions 3D</h2>
-                {prints.length === 0 ? <p>Aucune demande.</p> : (
-                    <div style={{ display: "grid", gap: 16 }}>
-                    {prints.map((r) => (
-                        <div key={r._id} className="card" style={{ padding: 16, background: "rgba(255,255,255,0.02)" }}>
-                        <div style={{ display: "flex", justifyContent: "space-between" }}>
-                            <div style={{ fontWeight: 800 }}>{r.originalName}</div>
-                            {r.status === "quoted" && <button className="btn primary" onClick={() => addPrintQuoteToCart(r)}>Ajouter au panier 🛒</button>}
-                        </div>
-                        <div style={{ opacity: 0.8, fontSize: 14 }}>Statut: {r.status}</div>
                         </div>
                     ))}
                     </div>

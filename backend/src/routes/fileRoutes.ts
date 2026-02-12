@@ -8,24 +8,22 @@ import { CloudinaryStorage } from "multer-storage-cloudinary";
 
 const r = Router();
 
-// Configuration Cloudinary
+// Configuration Cloudinary (utilise tes variables Render)
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
   api_key: process.env.CLOUDINARY_API_KEY,
   api_secret: process.env.CLOUDINARY_API_SECRET
 });
 
-// Configuration du stockage avec nettoyage de nom simplifié (évite les caractères bizarres)
+// Configuration du stockage Cloudinary
 const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: async (req: any, file: any) => {
-    // On garde uniquement lettres et chiffres pour éviter les bugs d'encodage
-    const cleanName = file.originalname.split('.')[0].replace(/[^a-zA-Z0-9]/g, '_');
-
     return {
       folder: 'stl_market',
       resource_type: 'raw', 
-      public_id: `${cleanName}_${Date.now()}`,
+      // Le Public ID sur Cloudinary sera généré avec un timestamp pour éviter les conflits
+      public_id: `${file.originalname.split('.')[0]}_${Date.now()}`,
     };
   },
 });
@@ -51,7 +49,8 @@ r.post("/", requireAuth, upload.single("file"), async (req: any, res) => {
       category,
       price: parseFloat(price),
       description,
-      filename: req.file.filename, 
+      // Cela te permet de faire correspondre manuellement le Public ID dans Cloudinary
+      filename: title.replace(/\s+/g, '_'), 
       ownerId: req.auth.id
     });
 
@@ -59,13 +58,13 @@ r.post("/", requireAuth, upload.single("file"), async (req: any, res) => {
     res.status(201).json(newFile);
   } catch (error: any) {
     if (error.code === 11000) {
-        return res.status(400).json({ error: "Ce titre existe déjà. Choisissez un autre nom." });
+        return res.status(400).json({ error: "Ce titre existe déjà." });
     }
     res.status(500).json({ error: "Erreur lors de la mise en vente" });
   }
 });
 
-// 3. TÉLÉCHARGEMENT (Correction : Force l'extension .stl et le format raw)
+// 3. TÉLÉCHARGEMENT (Génère le lien Cloudinary)
 r.get("/download/:fileId", requireAuth, async (req: any, res) => {
   try {
     const fileId = req.params.fileId;
@@ -75,16 +74,17 @@ r.get("/download/:fileId", requireAuth, async (req: any, res) => {
     const file = await File.findById(fileId);
     if (!file) return res.status(404).json({ message: "Fichier introuvable" });
 
+    // Vérification de l'achat
     const order = await Order.findOne({ userId, "items.fileId": fileId });
     if (!order && userRole !== 'admin') {
       return res.status(403).json({ message: "Achat requis" });
     }
 
-    // Utilisation de cloudinary.url pour générer un lien forçant le téléchargement avec .stl
+    // Génération de l'URL sécurisée vers Cloudinary
     const downloadUrl = cloudinary.url(file.filename, {
       resource_type: 'raw',
       flags: 'attachment',
-      format: 'stl', // <--- Force l'extension .stl dans le lien
+      format: 'stl', // Force l'extension .stl au téléchargement
       sign_url: true
     });
 
