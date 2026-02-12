@@ -1,5 +1,5 @@
 import express from "express";
-import cors from "cors"; // ✅ On garde l'import officiel
+import cors from "cors";
 import path from "node:path";
 import fs from "node:fs";
 import mongoose from "mongoose";
@@ -56,7 +56,7 @@ const corsOptions = {
 // Appliquer la configuration
 app.use(cors(corsOptions));
 // Force la gestion des requêtes "Pre-flight" (OPTIONS) pour toutes les routes
-app.options('*', cors(corsOptions));
+app.options(/(.*)/, cors(corsOptions));
 
 app.use(express.json());
 
