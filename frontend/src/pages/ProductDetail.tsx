@@ -73,7 +73,7 @@ export default function ProductDetail() {
         <div className="card" style={{ padding: "30px", display: "flex", flexDirection: "column" }}>
           <h1 style={{ marginTop: 0 }}>{item.title}</h1>
           <div style={{ marginBottom: 20, fontSize: 14, color: "var(--text-muted)" }}>
-             📂 {item.category} • ⬇️ {item.downloads} téléchargements
+             📂 {item.category} • ⬇️ {item.downloads} téeeeeeeeeeeeléchargements
           </div>
           <p style={{ color: "var(--text-muted)", flexGrow: 1 }}>
             {item.description || "Description indisponible."}
