@@ -58,8 +58,8 @@ export default function ProductDetail() {
   // Ton Cloud Name est 'dvgdc8bq0'
   const CLOUD_NAME = "dvgdc8bq0";
   // On construit l'URL directe vers ton Cloudinary
-  const stlUrl = `https://res.cloudinary.com/${CLOUD_NAME}/raw/upload/v1/${encodeURIComponent(item.filename)}`;
-
+  const stlUrl = `https://res.cloudinary.com/dvgdc8bq0/raw/upload/v1/${item.filename.split('.')[0]}?update=${Date.now()}`; 
+  
   return (
     <section className="container" style={{ marginTop: "40px" }}>
       <div className="detail-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px" }}>
