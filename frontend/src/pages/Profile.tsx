@@ -12,11 +12,7 @@ export default function Profile() {
 
   const load = async () => {
     setLoading(true);
-    // On n'a plus besoin de récupérer le token manuellement ici, 
-    // l'intercepteur dans api.ts le fait déjà !
-    
     try {
-      // 👇 On utilise api.get et on enlève le début de l'URL
       const [ordersRes, printsRes] = await Promise.all([
         api.get("/api/orders/my"),
         api.get("/api/print/my")
@@ -27,7 +23,6 @@ export default function Profile() {
 
     } catch (e) {
       console.error("Erreur chargement profil", e);
-      // Si erreur 401 (Non autorisé), on redirige
       if ((e as any).response?.status === 401) navigate("/login");
     } finally {
       setLoading(false);
@@ -36,10 +31,36 @@ export default function Profile() {
 
   useEffect(() => { load(); }, []);
 
+  // 👇 FONCTION DE TÉLÉCHARGEMENT
+  const downloadFile = async (fileId: string, filename: string) => {
+    try {
+      // On demande le fichier en précisant qu'on attend un 'blob' (fichier binaire)
+      const response = await api.get(`/api/files/download/${fileId}`, {
+        responseType: 'blob', 
+      });
+
+      // Création d'un lien temporaire pour forcer le navigateur à télécharger
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      // On utilise le titre du produit comme nom de fichier
+      link.setAttribute('download', filename || `fichier_${fileId}.stl`);
+      document.body.appendChild(link);
+      link.click();
+      
+      // Nettoyage
+      link.parentNode?.removeChild(link);
+      window.URL.revokeObjectURL(url);
+
+    } catch (error) {
+      alert("Erreur : Impossible de télécharger. Vérifiez que vous avez bien acheté le produit.");
+      console.error(error);
+    }
+  };
+
   const removeOrder = async (id: string) => {
     if(!window.confirm("Supprimer cette commande de l'historique ?")) return;
     try {
-       // 👇 Correction ici aussi
         await api.delete(`/api/orders/${id}`);
         await load(); 
     } catch (e) {
@@ -49,7 +70,6 @@ export default function Profile() {
 
   const addPrintQuoteToCart = (r: any) => {
     if (r.status !== "quoted" || r.quotePrice == null) return;
-
     addItem(
       {
         _id: `print_${r._id}`, 
@@ -92,17 +112,29 @@ export default function Profile() {
                             </div>
                             <button 
                                 className="btn" 
-                                style={{color: "var(--danger)", borderColor: "rgba(248,81,73,0.3)", background: "transparent"}}
+                                style={{color: "var(--danger)", borderColor: "rgba(248,81,73,0.3)", background: "transparent", fontSize: 12, padding: "4px 8px"}}
                                 onClick={() => removeOrder(o._id)}
                             >
-                            Supprimer
+                            ✕
                             </button>
                         </div>
 
                         <div style={{ marginTop: 12, paddingTop: 12, borderTop: "1px solid rgba(255,255,255,0.1)", fontSize: 14 }}>
                             {o.items.map((it: any, idx: number) => (
-                            <div key={idx} style={{ opacity: 0.8, marginBottom: 4 }}>
-                                • {it.title} × {it.quantity} — {it.price.toFixed(2)} €
+                            <div key={idx} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+                                <div style={{ opacity: 0.8 }}>
+                                    • {it.title} × {it.quantity} — {it.price.toFixed(2)} €
+                                </div>
+                                {/* 👇 LE BOUTON TÉLÉCHARGER EST ICI 👇 */}
+                                {it.kind === 'file' && it.fileId && (
+                                    <button 
+                                        className="btn primary" 
+                                        style={{ padding: "6px 14px", fontSize: 13 }}
+                                        onClick={() => downloadFile(it.fileId, `${it.title}.stl`)}
+                                    >
+                                        📥 Télécharger
+                                    </button>
+                                )}
                             </div>
                             ))}
                         </div>
