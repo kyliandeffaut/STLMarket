@@ -43,9 +43,7 @@ export default function STLViewer({
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.shadowMap.enabled = true;
     
-    // On attache le canvas au div
     const container = mountRef.current;
-    // On vide le conteneur au cas où (re-render)
     while (container.firstChild) {
       container.removeChild(container.firstChild);
     }
@@ -53,7 +51,7 @@ export default function STLViewer({
 
     // Caméra
     const camera = new THREE.PerspectiveCamera(50, 1, 0.1, 2000);
-    camera.position.set(0, 50, 100); // Position par défaut
+    // La position initiale n'est pas importante, elle sera recalculée
 
     // Contrôles
     const controls = new OrbitControls(camera, renderer.domElement);
@@ -71,20 +69,16 @@ export default function STLViewer({
         (geometry) => {
           // A. Centrage de la géométrie
           geometry.computeBoundingBox();
-          geometry.center(); // ✅ Méthode native Three.js pour centrer parfaitement
+          geometry.center(); // ✅ L'objet est parfaitement centré en (0,0,0)
 
-          // B. Calcul de l'échelle pour que l'objet ait une taille standard
+          // B. Calcul de la sphère englobante pour le cadrage
           geometry.computeBoundingSphere();
           const boundingSphere = geometry.boundingSphere;
           const radius = boundingSphere ? boundingSphere.radius : 1;
-          
-          // On veut que l'objet fasse environ 50 unités de large à l'écran
-          const targetSize = 50; 
-          const scaleFactor = targetSize / radius;
 
-          // C. Création du Mesh
+          // C. Création du Mesh (SANS mise à l'échelle)
           const material = new THREE.MeshStandardMaterial({
-            color: 0x60a5fa, // Bleu joli
+            color: 0x60a5fa,
             metalness: 0.2,
             roughness: 0.5,
             wireframe: wireframe,
@@ -92,23 +86,51 @@ export default function STLViewer({
           
           const mesh = new THREE.Mesh(geometry, material);
           
-          // On applique l'échelle
-          mesh.scale.set(scaleFactor, scaleFactor, scaleFactor);
-          
-          // On le remonte un peu pour qu'il ne soit pas "dans" le sol
-          // (Puisqu'on l'a centré, la moitié est en dessous de 0)
+          // On calcule la hauteur pour poser l'objet sur le sol (Y=0)
+          let objectCenterY = 0;
           if (geometry.boundingBox) {
-             const height = (geometry.boundingBox.max.y - geometry.boundingBox.min.y) * scaleFactor;
-             mesh.position.y = height / 2; 
+             const height = geometry.boundingBox.max.y - geometry.boundingBox.min.y;
+             mesh.position.y = height / 2;
+             objectCenterY = mesh.position.y;
           }
 
           mesh.castShadow = true;
           mesh.receiveShadow = true;
           scene.add(mesh);
 
-          // D. Sol (Optionnel)
+          // D. AJUSTEMENT AUTOMATIQUE DE LA CAMÉRA (LE "FIT") 📸
+          // On calcule la distance idéale pour que l'objet rentre dans le champ de vision
+          const fov = camera.fov * (Math.PI / 180); // Conversion en radians
+          // Formule magique pour trouver la distance : distance = rayon / sin(fov/2)
+          let distance = Math.abs(radius / Math.sin(fov / 2));
+
+          // On ajoute une marge de sécurité (x1.5) pour que l'objet "respire"
+          distance *= 1.5;
+
+          // Le point que la caméra doit regarder (le centre de l'objet)
+          const target = new THREE.Vector3(0, objectCenterY, 0);
+
+          // On place la caméra. Une vue isométrique (en diagonale) est souvent jolie.
+          // On la place à la bonne distance de la cible.
+          const direction = new THREE.Vector3(1, 0.8, 1).normalize(); // Vecteur direction
+          const cameraPos = target.clone().add(direction.multiplyScalar(distance));
+          
+          camera.position.copy(cameraPos);
+
+          // On dit aux contrôles de regarder le centre de l'objet
+          controls.target.copy(target);
+          
+          // On définit les limites de zoom pour éviter les problèmes
+          controls.minDistance = radius * 1.1; // Impossible de rentrer dans l'objet
+          controls.maxDistance = distance * 5;  // Impossible d'aller trop loin
+          
+          controls.update();
+
+          // E. Sol (Optionnel)
           if (showGround) {
-            const planeGeometry = new THREE.PlaneGeometry(500, 500);
+            // Le sol doit être proportionnel à la taille de l'objet
+            const groundSize = Math.max(200, radius * 15);
+            const planeGeometry = new THREE.PlaneGeometry(groundSize, groundSize);
             const planeMaterial = new THREE.MeshPhongMaterial({ 
                 color: 0x111827, 
                 depthWrite: false 
@@ -118,9 +140,8 @@ export default function STLViewer({
             plane.receiveShadow = true;
             scene.add(plane);
             
-            // Grille pour faire joli
-            const grid = new THREE.GridHelper(500, 50, 0x444444, 0x222222);
-            grid.position.y = 0.1;
+            // Grille
+            const grid = new THREE.GridHelper(groundSize, 20, 0x444444, 0x222222);
             grid.material.opacity = 0.4;
             grid.material.transparent = true;
             scene.add(grid);
@@ -142,7 +163,6 @@ export default function STLViewer({
     };
     animate();
 
-    // Gestion du redimensionnement (Responsive)
     const handleResize = () => {
       if (!container) return;
       const width = container.clientWidth;
@@ -153,10 +173,9 @@ export default function STLViewer({
       camera.updateProjectionMatrix();
     };
 
-    // On écoute le resize
     const resizeObserver = new ResizeObserver(handleResize);
     resizeObserver.observe(container);
-    handleResize(); // Appel initial
+    handleResize();
 
     // Nettoyage
     return () => {
@@ -176,7 +195,7 @@ export default function STLViewer({
       style={{ 
         width: "100%", 
         height: "100%", 
-        minHeight: "400px", // Hauteur minimale garantie
+        minHeight: "400px",
         background: background,
         borderRadius: "12px",
         overflow: "hidden",
