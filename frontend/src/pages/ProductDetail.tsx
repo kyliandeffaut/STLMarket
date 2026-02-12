@@ -55,17 +55,10 @@ export default function ProductDetail() {
   if (loading) return <div className="container" style={{ padding: 40, textAlign: "center" }}>Chargement...</div>;
   if (!item) return <div className="container" style={{ padding: 40, textAlign: "center" }}>Produit introuvable.</div>;
 
-  // --- CONFIGURATION CLOUDINARY ---
+  // Ton Cloud Name est 'dvgdc8bq0'
   const CLOUD_NAME = "dvgdc8bq0";
-
-  /**
-   * Cette ligne retire ".stl" (ou toute autre extension) du nom s'il est présent.
-   * Ainsi, "Pion.stl" devient "Pion", ce qui évite la 404 sur Cloudinary.
-   */
-  const cleanFilename = item.filename.replace(/\.[^/.]+$/, "");
-  
-  // Construction de l'URL finale propre
-  const stlUrl = `https://res.cloudinary.com/${CLOUD_NAME}/raw/upload/v1/${encodeURIComponent(cleanFilename)}`;
+  // On construit l'URL directe vers ton Cloudinary
+  const stlUrl = `https://res.cloudinary.com/${CLOUD_NAME}/raw/upload/v1/${encodeURIComponent(item.filename)}`;
 
   return (
     <section className="container" style={{ marginTop: "40px" }}>
@@ -80,7 +73,7 @@ export default function ProductDetail() {
         <div className="card" style={{ padding: "30px", display: "flex", flexDirection: "column" }}>
           <h1 style={{ marginTop: 0 }}>{item.title}</h1>
           <div style={{ marginBottom: 20, fontSize: 14, color: "var(--text-muted)" }}>
-              📂 {item.category} • ⬇️ {item.downloads} téléchargements
+             📂 {item.category} • ⬇️ {item.downloads} téléchargements
           </div>
           <p style={{ color: "var(--text-muted)", flexGrow: 1 }}>
             {item.description || "Description indisponible."}

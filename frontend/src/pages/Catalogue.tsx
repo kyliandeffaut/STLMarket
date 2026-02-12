@@ -41,7 +41,7 @@ export default function Catalogue() {
   return (
     <section className="container" style={{ padding: "24px 16px" }}>
       <div className="row" style={{ justifyContent: "space-between", marginBottom: 12 }}>
-        <h2 style={{ margin: 0 }}>Catalogue</h2>
+        <h2 style={{ margin: 0 }}>Catalogueeeee</h2>
         <input className="input" placeholder="Rechercher…" value={q}
           onChange={(e) => setQ(e.target.value)} style={{ maxWidth: 280 }} />
       </div>
