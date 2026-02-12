@@ -43,9 +43,6 @@ backend/.DS_Store
 # === UPLOADS / STOCKAGE (TRÈS IMPORTANT) ===
 # On ignore les fichiers téléchargés par les utilisateurs
 # pour ne pas saturer GitHub et protéger les données.
-backend/public/files/
+
 backend/public/print_requests/
 backend/public/uploads/
-
-# (Optionnel) Si tu veux garder la structure des dossiers mais pas les fichiers :
-# !backend/public/files/.gitkeep
