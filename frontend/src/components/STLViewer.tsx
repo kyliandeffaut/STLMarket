@@ -21,7 +21,7 @@ export default function STLViewer({ src, autoRotate = true }: Props) {
 
     const container = mountRef.current;
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color("#0e1220");
+    scene.background = new THREE.Color("#0b0e14");
 
     const camera = new THREE.PerspectiveCamera(50, container.clientWidth / container.clientHeight, 0.1, 2000);
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
@@ -34,10 +34,10 @@ export default function STLViewer({ src, autoRotate = true }: Props) {
     scene.add(new THREE.HemisphereLight(0xffffff, 0x444444, 1.5));
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.autoRotate = autoRotate;
+    controls.enableDamping = true;
 
-    // --- CHARGEMENT ---
     const loader = new STLLoader();
-    // ✅ INDISPENSABLE : Dire à Three.js que le fichier vient d'ailleurs (Cloudinary)
+    // ✅ PERMET DE CHARGER DEPUIS CLOUDINARY
     loader.setPath("");
     (loader as any).crossOrigin = 'anonymous';
 
@@ -50,7 +50,6 @@ export default function STLViewer({ src, autoRotate = true }: Props) {
         const mesh = new THREE.Mesh(geometry, material);
         scene.add(mesh);
 
-        // Zoom auto sur l'objet
         geometry.computeBoundingSphere();
         const radius = geometry.boundingSphere?.radius || 50;
         camera.position.set(radius * 2, radius * 2, radius * 2);
@@ -60,7 +59,7 @@ export default function STLViewer({ src, autoRotate = true }: Props) {
       undefined,
       (err) => {
         setLoading(false);
-        setError("Impossible de charger le modèle 3D. Vérifiez l'URL.");
+        setError("Impossible de charger le modèle 3D.");
         console.error("ERREUR STL :", err);
       }
     );
@@ -90,5 +89,5 @@ export default function STLViewer({ src, autoRotate = true }: Props) {
 
 const msgStyle: React.CSSProperties = {
   position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)",
-  background: "rgba(0,0,0,0.8)", padding: "15px", borderRadius: "8px", color: "white"
+  background: "rgba(0,0,0,0.8)", padding: "12px 20px", borderRadius: "20px", color: "white", zIndex: 10
 };

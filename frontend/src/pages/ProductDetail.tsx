@@ -55,29 +55,38 @@ export default function ProductDetail() {
   if (loading) return <div className="container" style={{ padding: 40, textAlign: "center" }}>Chargement...</div>;
   if (!item) return <div className="container" style={{ padding: 40, textAlign: "center" }}>Produit introuvable.</div>;
 
-  // ✅ CONFIGURATION CLOUDINARY (dvgdc8bq0 est ton Cloud Name)
+  // Ton Cloud Name est 'dvgdc8bq0'
   const CLOUD_NAME = "dvgdc8bq0";
-  const stlUrl = `https://res.cloudinary.com/${CLOUD_NAME}/raw/upload/v1/stl_market/${encodeURIComponent(item.filename)}.stl`;
+  // On construit l'URL directe vers ton Cloudinary
+  const stlUrl = `https://res.cloudinary.com/${CLOUD_NAME}/raw/upload/v1/${encodeURIComponent(item.filename)}`;
+  // ------------------------------------------------
 
   return (
-    <section className="container">
-      <div className="detail-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px", marginTop: "20px" }}>
+    <section className="container" style={{ marginTop: "40px" }}>
+      <div className="detail-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px" }}>
         
-        {/* VISUALISEUR */}
+        {/* VISUALISEUR 3D */}
         <div className="card" style={{ padding: 0, overflow: "hidden", background: "#0b0e14", borderRadius: "12px", height: "500px" }}>
           <STLViewer src={stlUrl} />
         </div>
 
-        {/* INFOS */}
+        {/* INFORMATIONS PRODUIT */}
         <div className="card" style={{ padding: "30px", display: "flex", flexDirection: "column" }}>
-          <h1>{item.title}</h1>
-          <p style={{ color: "var(--text-muted)", flexGrow: 1 }}>{item.description || "Aucune description."}</p>
+          <h1 style={{ marginTop: 0 }}>{item.title}</h1>
+          <div style={{ marginBottom: 20, fontSize: 14, color: "var(--text-muted)" }}>
+             📂 {item.category} • ⬇️ {item.downloads} téléchargements
+          </div>
+          <p style={{ color: "var(--text-muted)", flexGrow: 1 }}>
+            {item.description || "Description indisponible."}
+          </p>
           
           <div style={{ marginTop: "auto", borderTop: "1px solid var(--border)", paddingTop: "20px" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <span style={{ fontSize: "24px", fontWeight: "bold" }}>{item.price.toFixed(2)} €</span>
+              <span style={{ fontSize: "28px", fontWeight: "bold", color: "var(--primary)" }}>
+                {item.price.toFixed(2)} €
+              </span>
               <button className={`btn ${added ? "" : "primary"}`} onClick={onAdd} disabled={added}>
-                {added ? "Ajouté !" : "Ajouter au panier"}
+                {added ? "Dans le panier ✅" : "Ajouter au panier 🛒"}
               </button>
             </div>
           </div>
