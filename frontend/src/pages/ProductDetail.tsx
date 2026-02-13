@@ -1,69 +1,97 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useLocation, useParams } from "react-router-dom";
+import { FilesAPI, FileDTO } from "../lib/api";
 import { useCart } from "../context/CartContext";
-import api from "../lib/api";
-import { useNavigate } from "react-router-dom";
+import STLViewer from "../components/STLViewer";
 
-export default function Profile() {
-  const [orders, setOrders] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
+type LocationState = { item?: FileDTO } | null;
 
-  const load = async () => {
-    setLoading(true);
-    try {
-      // ✅ Cache-busting sur l'API aussi
-      const ordersRes = await api.get(`/api/orders/my?t=${Date.now()}`);
-      setOrders(ordersRes.data.orders || []); 
-    } catch (e) {
-      if ((e as any).response?.status === 401) navigate("/login");
-    } finally {
-      setLoading(false);
-    }
-  };
+export default function ProductDetail() {
+  const { title = "" } = useParams();
+  const decodedTitle = useMemo(() => decodeURIComponent(title), [title]);
 
-  useEffect(() => { load(); }, []);
+  const { state } = useLocation() as { state: LocationState };
+  const stateItem = state?.item;
 
-  const downloadFile = async (fileId: string) => {
-    try {
-      const response = await api.get(`/api/files/download/${fileId}`);
-      if (response.data.downloadUrl) {
-        // ✅ MÉTHODE FORCE : Ouvre le lien de téléchargement directement
-        window.location.assign(response.data.downloadUrl);
+  const [item, setItem] = useState<FileDTO | null>(stateItem ?? null);
+  const [loading, setLoading] = useState(!stateItem);
+  const [added, setAdded] = useState(false);
+
+  const { addItem } = useCart();
+
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      if (stateItem) return;
+      setLoading(true);
+      try {
+        const data = await FilesAPI.detailByTitle(decodedTitle);
+        if (mounted) setItem(data);
+      } catch (e) {
+        console.error(e);
+        if (mounted) setItem(null);
+      } finally {
+        if (mounted) setLoading(false);
       }
-    } catch (error) {
-      alert("Erreur lors du téléchargement.");
-    }
+    })();
+    return () => { mounted = false; };
+  }, [decodedTitle, stateItem]);
+
+  const onAdd = () => {
+    if (!item) return;
+    addItem({
+        _id: item._id,
+        kind: "file",
+        title: item.title,
+        price: item.price,
+        category: item.category,
+        filename: item.filename,
+      }, 1
+    );
+    setAdded(true);
+    window.setTimeout(() => setAdded(false), 900);
   };
+
+  if (loading) return <div className="container" style={{ padding: 40, textAlign: "center" }}>Chargement...</div>;
+  if (!item) return <div className="container" style={{ padding: 40, textAlign: "center" }}>Produit introuvable.</div>;
+
+  // Ton Cloud Name est 'dvgdc8bq0'
+  const CLOUD_NAME = "dvgdc8bq0";
+  // On construit l'URL directe vers ton Cloudinary
+  const stlUrl = `https://res.cloudinary.com/${CLOUD_NAME}/raw/upload/v1/${encodeURIComponent(item.filename)}`;
 
   return (
-    <div className="container" style={{ padding: "40px 20px" }}>
-      <div className="card" style={{ padding: 24 }}>
-        <h1>Mon espace</h1>
-        {loading ? <p>Chargement...</p> : (
-          <div className="card" style={{ padding: 16, marginTop: 24, border: "1px solid var(--border)" }}>
-            <h2>📦 Historique d'achats</h2>
-            {orders.length === 0 ? <p>Aucun achat.</p> : (
-              <div style={{ display: "grid", gap: 16 }}>
-                {orders.map((o) => (
-                  <div key={o._id} className="card" style={{ padding: 16, background: "rgba(255,255,255,0.02)" }}>
-                    <div style={{ fontWeight: 800 }}>Commande du {new Date(o.createdAt).toLocaleDateString()}</div>
-                    <div style={{ marginTop: 12, borderTop: "1px solid rgba(255,255,255,0.1)" }}>
-                      {o.items.map((it: any, idx: number) => (
-                        <div key={idx} style={{ display: "flex", justifyContent: "space-between", marginTop: 8 }}>
-                          <span>• {it.title}</span>
-                          {it.kind === 'file' && (
-                            <button className="btn primary" onClick={() => downloadFile(it.fileId)}>📥 Télécharger</button>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
+    <section className="container" style={{ marginTop: "40px" }}>
+      <div className="detail-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px" }}>
+        
+        {/* VISUALISEUR 3D */}
+        <div className="card" style={{ padding: 0, overflow: "hidden", background: "#0b0e14", borderRadius: "12px", height: "500px" }}>
+          <STLViewer src={stlUrl} />
+        </div>
+
+        {/* INFORMATIONS PRODUIT */}
+        <div className="card" style={{ padding: "30px", display: "flex", flexDirection: "column" }}>
+          <h1 style={{ marginTop: 0 }}>{item.title}</h1>
+          <div style={{ marginBottom: 20, fontSize: 14, color: "var(--text-muted)" }}>
+             📂 {item.category} • ⬇️ {item.downloads} téléchargements
           </div>
-        )}
+          <p style={{ color: "var(--text-muted)", flexGrow: 1 }}>
+            {item.description || "Description indisponible."}
+          </p>
+          
+          <div style={{ marginTop: "auto", borderTop: "1px solid var(--border)", paddingTop: "20px" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <span style={{ fontSize: "28px", fontWeight: "bold", color: "var(--primary)" }}>
+                {item.price.toFixed(2)} €
+              </span>
+              <button className={`btn ${added ? "" : "primary"}`} onClick={onAdd} disabled={added}>
+                {added ? "Dans le panier ✅" : "Ajouter au panier 🛒"}
+              </button>
+            </div>
+          </div>
+        </div>
+
       </div>
-    </div>
+    </section>
   );
 }
