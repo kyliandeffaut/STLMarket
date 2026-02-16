@@ -1,7 +1,7 @@
 import { useContext, useState } from "react";
 import { AuthAPI } from "../lib/api";
 import { AuthContext } from "../context/AuthContext";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 
 export default function Register() {
   const { login } = useContext(AuthContext);
@@ -14,36 +14,77 @@ export default function Register() {
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const { token, user } = await AuthAPI.register({ firstName, lastName, email, password });
-    login(token, user);
-    nav("/catalogue");
+    try {
+      const { token, user } = await AuthAPI.register({ firstName, lastName, email, password });
+      login(token, user);
+      nav("/catalogue");
+    } catch (err) {
+      alert("Erreur lors de l'inscription");
+    }
   };
 
   return (
-    <div className="container" style={{ padding: "24px 16px" }}>
-      <div className="card" style={{ padding: 20, maxWidth: 520, margin: "0 auto" }}>
-        <h1 style={{ marginTop: 0 }}>S’inscrire</h1>
+    <div className="container">
+      <div className="auth-container">
+        <h1>S’inscrire</h1>
+        <p style={{ color: "var(--muted)", marginBottom: "30px" }}>Rejoignez la communauté STLMarket.</p>
 
-        <form onSubmit={onSubmit} style={{ display: "grid", gap: 12 }}>
-          <div>
-            <label>Prénom :</label>
-            <input className="input" value={firstName} onChange={(e) => setFirstName(e.target.value)} />
-          </div>
-          <div>
-            <label>Nom :</label>
-            <input className="input" value={lastName} onChange={(e) => setLastName(e.target.value)} />
-          </div>
-          <div>
-            <label>Email :</label>
-            <input className="input" value={email} onChange={(e) => setEmail(e.target.value)} />
-          </div>
-          <div>
-            <label>Mot de passe :</label>
-            <input className="input" type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
+        <form onSubmit={onSubmit}>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "15px" }}>
+            <div className="auth-form-group">
+              <label className="auth-label">Prénom</label>
+              <input 
+                className="auth-input" 
+                placeholder="Jean"
+                value={firstName} 
+                onChange={(e) => setFirstName(e.target.value)} 
+                required
+              />
+            </div>
+            <div className="auth-form-group">
+              <label className="auth-label">Nom</label>
+              <input 
+                className="auth-input" 
+                placeholder="Dupont"
+                value={lastName} 
+                onChange={(e) => setLastName(e.target.value)} 
+                required
+              />
+            </div>
           </div>
 
-          <button className="btn primary" type="submit">Créer le compte</button>
+          <div className="auth-form-group">
+            <label className="auth-label">Email</label>
+            <input 
+              className="auth-input" 
+              type="email"
+              placeholder="jean@exemple.fr"
+              value={email} 
+              onChange={(e) => setEmail(e.target.value)} 
+              required
+            />
+          </div>
+
+          <div className="auth-form-group">
+            <label className="auth-label">Mot de passe</label>
+            <input 
+              className="auth-input" 
+              type="password" 
+              placeholder="••••••••"
+              value={password} 
+              onChange={(e) => setPassword(e.target.value)} 
+              required
+            />
+          </div>
+
+          <button className="btn-auth-submit" type="submit">
+            Créer mon compte
+          </button>
         </form>
+
+        <p style={{ textAlign: "center", marginTop: "20px", fontSize: "14px", color: "var(--muted)" }}>
+          Déjà inscrit ? <Link to="/login" style={{ color: "var(--primary)" }}>Se connecter</Link>
+        </p>
       </div>
     </div>
   );
