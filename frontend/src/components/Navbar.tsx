@@ -2,19 +2,21 @@ import { useContext, useState } from "react";
 import { Link, NavLink } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 
-// Gestion de la classe active pour le style
+// Fonction pour gérer la classe active
 const activeClass = ({ isActive }: { isActive: boolean }) => 
   isActive ? "nav-item active" : "nav-item";
 
 export default function Navbar() {
-  // ✅ On ajoute isAdmin ici pour savoir si l'utilisateur a les droits
-  const { token, user, isAdmin, logout } = useContext(AuthContext);
+  const { token, isAdmin, logout } = useContext(AuthContext); // On n'a plus besoin de 'user' ici
   const [isOpen, setIsOpen] = useState(false);
+
+  // Fonction pour fermer le menu quand on clique sur un lien
+  const close = () => setIsOpen(false);
 
   return (
     <header className="navbar">
       <div className="container navbar-container">
-        <Link to="/" className="nav-logo" onClick={() => setIsOpen(false)}>
+        <Link to="/" className="nav-logo" onClick={close}>
           🧩 STLMarket
         </Link>
 
@@ -24,39 +26,38 @@ export default function Navbar() {
         </button>
 
         <nav className={`nav-links ${isOpen ? "open" : ""}`}>
-          <NavLink to="/catalogue" className={activeClass} onClick={() => setIsOpen(false)}>Catalogue</NavLink>
-          <NavLink to="/print" className={activeClass} onClick={() => setIsOpen(false)}>Impression 3D</NavLink>
-          <NavLink to="/cart" className={activeClass} onClick={() => setIsOpen(false)}>Panier</NavLink>
+          <NavLink to="/catalogue" className={activeClass} onClick={close}>Catalogue</NavLink>
+          <NavLink to="/print" className={activeClass} onClick={close}>Impression 3D</NavLink>
+          <NavLink to="/cart" className={activeClass} onClick={close}>Panier</NavLink>
 
-          {/* ✅ LIEN ADMIN : Apparaît uniquement si l'utilisateur est admin */}
+          {/* LIEN ADMIN */}
           {isAdmin && (
             <NavLink 
               to="/admin" 
               className={activeClass} 
-              onClick={() => setIsOpen(false)}
-              style={{ color: "var(--accent)", fontWeight: "bold" }}
+              onClick={close}
+              style={{ color: "var(--accent)", fontWeight: "800", textShadow: "0 0 10px rgba(34, 211, 238, 0.4)" }}
             >
               Admin 🛡️
             </NavLink>
           )}
 
-          <NavLink to="/profile" className={activeClass} onClick={() => setIsOpen(false)}>Mon espace</NavLink>
+          <NavLink to="/profile" className={activeClass} onClick={close}>Mon espace</NavLink>
 
+          {/* SECTION AUTH */}
           {token ? (
             <div className="nav-auth-mobile">
-              <span className="user-name-display">{user?.firstName}</span>
               <button 
-                onClick={logout} 
-                className="btn" 
-                style={{ background: "rgba(255, 107, 107, 0.1)", color: "#ff6b6b", border: "1px solid rgba(255, 107, 107, 0.2)" }}
+                onClick={() => { logout(); close(); }} 
+                className="btn logout-style"
               >
                 Déconnexion
               </button>
             </div>
           ) : (
             <div className="nav-auth-mobile">
-              <NavLink to="/login" className="btn ghost" onClick={() => setIsOpen(false)}>Connexion</NavLink>
-              <NavLink to="/register" className="btn primary" onClick={() => setIsOpen(false)}>S'inscrire</NavLink>
+              <NavLink to="/login" className="btn ghost" onClick={close}>Connexion</NavLink>
+              <NavLink to="/register" className="btn primary" onClick={close}>S'inscrire</NavLink>
             </div>
           )}
         </nav>
