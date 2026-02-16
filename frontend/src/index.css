@@ -14,13 +14,20 @@
 
 body {
   margin: 0;
-  color: var(--text);
   font-family: 'Inter', system-ui, sans-serif;
-  background-color: #0f111a;
+  color: var(--text);
+  background-color: #050a14; /* Bleu nuit très sombre */
   
-  /* Motif à pois très subtil */
-  background-image: radial-gradient(#334155 1px, transparent 1px);
-  background-size: 30px 30px; /* Espace entre les points */
+  /* Une grille Cyan bien marquée */
+  background-image: 
+    linear-gradient(rgba(34, 211, 238, 0.1) 2px, transparent 2px),
+    linear-gradient(90deg, rgba(34, 211, 238, 0.1) 2px, transparent 2px),
+    linear-gradient(rgba(34, 211, 238, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(34, 211, 238, 0.05) 1px, transparent 1px);
+    
+  /* Deux tailles de carreaux : des gros et des petits */
+  background-size: 100px 100px, 100px 100px, 20px 20px, 20px 20px;
+  background-position: -2px -2px, -2px -2px, -1px -1px, -1px -1px;
   
   min-height: 100vh;
 }
