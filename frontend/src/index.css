@@ -1,41 +1,36 @@
+/* --- VARIABLES DE DESIGN --- */
 :root {
   --bg-dark: #0f172a;
   --card-bg: rgba(30, 41, 59, 0.7);
-  --primary: #6366f1;
+  --primary: #6366f1; /* Indigo vibrant */
   --primary-hover: #818cf8;
   --text-main: #f8fafc;
   --text-muted: #94a3b8;
   --border: rgba(255, 255, 255, 0.1);
   --danger: #ef4444;
+  --success: #22c55e;
 }
 
+/* --- RESET & BASE --- */
 body {
   margin: 0;
-  font-family: 'Inter', sans-serif;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
   background-color: var(--bg-dark);
-  background-image: radial-gradient(circle at 0% 0%, rgba(99, 102, 241, 0.1) 0, transparent 50%);
+  background-image: 
+    radial-gradient(circle at 0% 0%, rgba(99, 102, 241, 0.15) 0, transparent 50%),
+    radial-gradient(circle at 100% 100%, rgba(99, 102, 241, 0.1) 0, transparent 50%);
   color: var(--text-main);
+  min-height: 100vh;
 }
 
+/* --- CONTENEUR PRINCIPAL --- */
 .container {
   max-width: 1100px;
   margin: 0 auto;
   padding: 40px 20px;
-  animation: fadeIn 0.6s ease-out;
 }
 
-/* Titre avec compatibilité standard */
-h1 {
-  font-size: 2.5rem;
-  font-weight: 800;
-  background: linear-gradient(135deg, #ffffff 0%, #94a3b8 100%);
-  background-clip: text;
-  -webkit-background-clip: text;
-  color: transparent;
-  -webkit-text-fill-color: transparent;
-  margin-bottom: 20px;
-}
-
+/* --- CARTES (Effet de Verre) --- */
 .card {
   background: var(--card-bg);
   backdrop-filter: blur(12px);
@@ -43,30 +38,100 @@ h1 {
   border: 1px solid var(--border);
   border-radius: 16px;
   padding: 24px;
-  background-clip: padding-box;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
+.card:hover {
+  border-color: rgba(99, 102, 241, 0.4);
+}
+
+/* --- BOUTONS --- */
 .btn {
-  padding: 10px 22px;
-  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 20px;
+  border-radius: 8px;
   font-weight: 600;
   cursor: pointer;
+  transition: all 0.2s ease;
   border: none;
-  transition: all 0.2s;
+  gap: 8px;
+  font-size: 14px;
 }
 
 .btn.primary {
   background: var(--primary);
   color: white;
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
 }
 
 .btn.primary:hover {
+  background: var(--primary-hover);
   transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(99, 102, 241, 0.4);
+  box-shadow: 0 6px 15px rgba(99, 102, 241, 0.4);
 }
 
+.btn:active {
+  transform: translateY(0);
+}
+
+/* --- GRILLE DE DETAIL PRODUIT --- */
+.detail-grid {
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr;
+  gap: 30px;
+  align-items: start;
+}
+
+@media (max-width: 768px) {
+  .detail-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* --- TITRES --- */
+h1 {
+  font-size: 2.5rem;
+  font-weight: 800;
+  margin-bottom: 0.5rem;
+  background: linear-gradient(to right, #fff, #94a3b8);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+h2 {
+  font-size: 1.5rem;
+  color: var(--primary);
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* --- HISTORIQUE DE COMMANDES --- */
+.order-item {
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 15px;
+  border-left: 4px solid var(--primary);
+}
+
+.order-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+/* --- ANIMATION DE CHARGEMENT --- */
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
+}
+
+.container {
+  animation: fadeIn 0.5s ease-out;
 }
