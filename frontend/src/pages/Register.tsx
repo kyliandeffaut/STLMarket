@@ -30,8 +30,9 @@ export default function Register() {
         <p style={{ color: "var(--muted)", marginBottom: "30px" }}>Rejoignez la communauté STLMarket.</p>
 
         <form onSubmit={onSubmit}>
+          {/* Ligne Prénom / Nom */}
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "15px" }}>
-            <div className="auth-form-group">
+            <div>
               <label className="auth-label">Prénom</label>
               <input 
                 className="auth-input" 
@@ -41,7 +42,7 @@ export default function Register() {
                 required
               />
             </div>
-            <div className="auth-form-group">
+            <div>
               <label className="auth-label">Nom</label>
               <input 
                 className="auth-input" 
@@ -53,7 +54,8 @@ export default function Register() {
             </div>
           </div>
 
-          <div className="auth-form-group">
+          {/* Email */}
+          <div>
             <label className="auth-label">Email</label>
             <input 
               className="auth-input" 
@@ -65,7 +67,8 @@ export default function Register() {
             />
           </div>
 
-          <div className="auth-form-group">
+          {/* Mot de passe */}
+          <div>
             <label className="auth-label">Mot de passe</label>
             <input 
               className="auth-input" 
@@ -83,7 +86,7 @@ export default function Register() {
         </form>
 
         <p style={{ textAlign: "center", marginTop: "20px", fontSize: "14px", color: "var(--muted)" }}>
-          Déjà inscrit ? <Link to="/login" style={{ color: "var(--primary)" }}>Se connecter</Link>
+          Déjà inscrit ? <Link to="/login" style={{ color: "var(--primary)", textDecoration: "none" }}>Se connecter</Link>
         </p>
       </div>
     </div>
