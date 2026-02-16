@@ -55,33 +55,38 @@ export default function ProductDetail() {
   if (loading) return <div className="container" style={{ textAlign: "center", padding: "100px" }}>Chargement...</div>;
   if (!item) return <div className="container" style={{ textAlign: "center", padding: "100px" }}>Produit introuvable.</div>;
 
-  // ✅ TA LOGIQUE QUI MARCHE : URL directe avec l'extension complète
+  // Cloudinary Config
   const CLOUD_NAME = "dvgdc8bq0";
   const stlUrl = `https://res.cloudinary.com/${CLOUD_NAME}/raw/upload/v1/${encodeURIComponent(item.filename)}`;
 
   return (
     <div className="container" style={{ marginTop: "40px" }}>
-      {/* On utilise .detail-grid de ton CSS pour le placement */}
       <div className="detail-grid">
         
-        {/* VISUALISEUR 3D - On garde ton height: 500px pour éviter l'écran noir */}
-        <div className="card" style={{ padding: 0, overflow: "hidden", background: "#0b0e14", height: "500px" }}>
-          <STLViewer src={stlUrl} />
+        {/* VISUALISEUR 3D - MODE INTERACTIF 
+            Ici on active la rotation et l'interaction souris
+        */}
+        <div className="product-card" style={{ padding: 0, overflow: "hidden", background: "#0b0e14", height: "500px", position: "relative" }}>
+          <STLViewer 
+            src={stlUrl} 
+            autoRotate={true}   // Ça tourne tout seul pour la présentation
+            interactive={true}  // ✅ L'utilisateur PEUT toucher/zoomer ici
+          />
         </div>
 
         {/* INFORMATIONS PRODUIT */}
-        <div className="card" style={{ padding: "30px", display: "flex", flexDirection: "column" }}>
+        <div className="auth-container" style={{ margin: 0, maxWidth: "100%", height: "fit-content" }}>
           <h1 style={{ marginTop: 0 }}>{item.title}</h1>
           
           <div style={{ marginBottom: 20, fontSize: 14, color: "var(--muted)" }}>
               📂 {item.category} • ⬇️ {item.downloads} téléchargements
           </div>
 
-          <p style={{ color: "var(--muted)", flexGrow: 1, lineHeight: "1.6" }}>
-            {item.description || "Description indisponible."}
+          <p style={{ color: "var(--muted)", flexGrow: 1, lineHeight: "1.6", minHeight: "100px" }}>
+            {item.description || "Aucune description fournie pour ce modèle 3D."}
           </p>
           
-          <div style={{ marginTop: "auto", borderTop: "1px solid rgba(255,255,255,0.1)", paddingTop: "20px" }}>
+          <div style={{ marginTop: "30px", borderTop: "1px solid rgba(255,255,255,0.1)", paddingTop: "25px" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
               <span style={{ fontSize: "32px", fontWeight: "900", color: "var(--accent)" }}>
                 {item.price.toFixed(2)} €
@@ -91,9 +96,9 @@ export default function ProductDetail() {
                 className={`btn ${added ? "" : "primary"}`} 
                 onClick={onAdd} 
                 disabled={added}
-                style={{ minWidth: "180px" }}
+                style={{ minWidth: "180px", padding: "14px", fontSize: "16px" }}
               >
-                {added ? "Ajouté ! ✅" : "Ajouter au panier 🛒"}
+                {added ? "Dans le panier ✅" : "Ajouter au panier 🛒"}
               </button>
             </div>
           </div>

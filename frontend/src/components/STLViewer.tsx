@@ -6,9 +6,10 @@ import { STLLoader } from "three/examples/jsm/loaders/STLLoader.js";
 type Props = {
   src?: string;
   autoRotate?: boolean;
+  interactive?: boolean; // ✅ NOUVEAU : Option pour activer/désactiver l'interaction
 };
 
-export default function STLViewer({ src, autoRotate = true }: Props) {
+export default function STLViewer({ src, autoRotate = true, interactive = true }: Props) {
   const mountRef = useRef<HTMLDivElement>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -21,7 +22,7 @@ export default function STLViewer({ src, autoRotate = true }: Props) {
 
     const container = mountRef.current;
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color("#0b0e14");
+    scene.background = new THREE.Color("#0b0e14"); // Fond sombre
 
     const camera = new THREE.PerspectiveCamera(
       50,
@@ -40,17 +41,32 @@ export default function STLViewer({ src, autoRotate = true }: Props) {
     container.appendChild(renderer.domElement);
 
     scene.add(new THREE.HemisphereLight(0xffffff, 0x444444, 1.5));
+    const dirLight = new THREE.DirectionalLight(0xffffff, 1);
+    dirLight.position.set(5, 10, 7); // Lumière directionnelle pour mieux voir les reliefs
+    scene.add(dirLight);
 
     const controls = new OrbitControls(camera, renderer.domElement);
-    controls.autoRotate = autoRotate;
     controls.enableDamping = true;
 
-    // ✅ FONCTION DE REDIMENSIONNEMENT (Le fix pour ton problème)
+    // ✅ LOGIQUE D'INTERACTION
+    if (interactive) {
+      // Mode Page Produit : On active tout
+      controls.enabled = true;
+      controls.autoRotate = autoRotate;
+      controls.enableZoom = true;
+    } else {
+      // Mode Catalogue : On fige tout
+      controls.enabled = false;
+      controls.autoRotate = false;
+      controls.enableZoom = false;
+      controls.enableRotate = false;
+      controls.enablePan = false;
+    }
+
     const handleResize = () => {
       if (!container) return;
       const width = container.clientWidth;
       const height = container.clientHeight;
-
       camera.aspect = width / height;
       camera.updateProjectionMatrix();
       renderer.setSize(width, height);
@@ -75,25 +91,22 @@ export default function STLViewer({ src, autoRotate = true }: Props) {
         });
 
         const mesh = new THREE.Mesh(geometry, material);
-
-        geometry.computeBoundingBox();
-        if (geometry.boundingBox) {
-          const height = geometry.boundingBox.max.y - geometry.boundingBox.min.y;
-          mesh.position.y = height / 2;
-        }
-
         scene.add(mesh);
 
+        // Cadrage de la caméra
         geometry.computeBoundingSphere();
         const radius = geometry.boundingSphere?.radius || 50;
-        camera.position.set(radius * 2, radius * 2, radius * 2);
-        controls.target.set(0, mesh.position.y, 0);
+        // On recule un peu plus la caméra si c'est interactif pour avoir de l'espace
+        const dist = interactive ? radius * 2 : radius * 1.7; 
+        camera.position.set(dist, dist, dist);
+        
+        controls.target.set(0, 0, 0);
         controls.update();
       },
       undefined,
       (err) => {
         setLoading(false);
-        setError("Impossible de charger le modèle 3D.");
+        setError("Erreur"); // Message court pour le catalogue
         console.error("ERREUR STL :", err);
       }
     );
@@ -101,24 +114,24 @@ export default function STLViewer({ src, autoRotate = true }: Props) {
     let animationId: number;
     const animate = () => {
       animationId = requestAnimationFrame(animate);
-      controls.update();
+      // On met à jour les contrôles seulement si c'est interactif ou si ça tourne
+      if (interactive || autoRotate) controls.update();
       renderer.render(scene, camera);
     };
     animate();
 
     return () => {
-      // ✅ NETTOYAGE
       window.removeEventListener("resize", handleResize);
       cancelAnimationFrame(animationId);
       renderer.dispose();
       controls.dispose();
     };
-  }, [src, autoRotate]);
+  }, [src, autoRotate, interactive]);
 
   return (
-    <div style={{ width: "100%", height: "100%", minHeight: "500px", position: "relative" }}>
+    <div style={{ width: "100%", height: "100%", minHeight: "100%", position: "relative" }}>
       <div ref={mountRef} style={{ width: "100%", height: "100%" }} />
-      {loading && <div style={msgStyle}>Chargement du modèle...</div>}
+      {loading && <div style={msgStyle}>Chargement...</div>}
       {error && <div style={{ ...msgStyle, color: "#ff4444" }}>{error}</div>}
     </div>
   );
@@ -129,9 +142,6 @@ const msgStyle: React.CSSProperties = {
   top: "50%",
   left: "50%",
   transform: "translate(-50%, -50%)",
-  background: "rgba(0,0,0,0.8)",
-  padding: "12px 20px",
-  borderRadius: "20px",
-  color: "white",
-  zIndex: 10,
+  fontSize: "12px",
+  color: "rgba(255,255,255,0.6)",
 };
