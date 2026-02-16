@@ -24,59 +24,66 @@ export default function STLViewer({ src, autoRotate = true }: Props) {
     scene.background = new THREE.Color("#0b0e14");
 
     const camera = new THREE.PerspectiveCamera(
-      50, 
-      container.clientWidth / container.clientHeight, 
-      0.1, 
+      50,
+      container.clientWidth / container.clientHeight,
+      0.1,
       2000
     );
-    
+
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setSize(container.clientWidth, container.clientHeight);
     renderer.setPixelRatio(window.devicePixelRatio);
-    
-    while (container.firstChild) { container.removeChild(container.firstChild); }
+
+    while (container.firstChild) {
+      container.removeChild(container.firstChild);
+    }
     container.appendChild(renderer.domElement);
 
     scene.add(new THREE.HemisphereLight(0xffffff, 0x444444, 1.5));
-    
+
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.autoRotate = autoRotate;
     controls.enableDamping = true;
 
+    // ✅ FONCTION DE REDIMENSIONNEMENT (Le fix pour ton problème)
+    const handleResize = () => {
+      if (!container) return;
+      const width = container.clientWidth;
+      const height = container.clientHeight;
+
+      camera.aspect = width / height;
+      camera.updateProjectionMatrix();
+      renderer.setSize(width, height);
+    };
+
+    window.addEventListener("resize", handleResize);
+
     const loader = new STLLoader();
-    loader.setPath("");
-    (loader as any).crossOrigin = 'anonymous';
+    (loader as any).crossOrigin = "anonymous";
 
     loader.load(
       src,
       (geometry) => {
         setLoading(false);
-
-        // ✅ CORRECTION DE LA POSITION (Droit au lieu de couché)
-        // On pivote la géométrie de -90 degrés sur l'axe X
         geometry.rotateX(-Math.PI / 2);
-
-        // Centrage de l'objet après rotation
         geometry.center();
-        
-        const material = new THREE.MeshStandardMaterial({ 
-          color: 0x60a5fa, 
-          metalness: 0.5, 
-          roughness: 0.2 
+
+        const material = new THREE.MeshStandardMaterial({
+          color: 0x60a5fa,
+          metalness: 0.5,
+          roughness: 0.2,
         });
-        
+
         const mesh = new THREE.Mesh(geometry, material);
 
-        // On calcule la hauteur pour poser l'objet sur la grille (Y=0)
         geometry.computeBoundingBox();
         if (geometry.boundingBox) {
           const height = geometry.boundingBox.max.y - geometry.boundingBox.min.y;
           mesh.position.y = height / 2;
         }
-        
+
         scene.add(mesh);
 
-        // Ajustement automatique de la caméra pour cadrer l'objet
         geometry.computeBoundingSphere();
         const radius = geometry.boundingSphere?.radius || 50;
         camera.position.set(radius * 2, radius * 2, radius * 2);
@@ -100,6 +107,8 @@ export default function STLViewer({ src, autoRotate = true }: Props) {
     animate();
 
     return () => {
+      // ✅ NETTOYAGE
+      window.removeEventListener("resize", handleResize);
       cancelAnimationFrame(animationId);
       renderer.dispose();
       controls.dispose();
@@ -110,19 +119,19 @@ export default function STLViewer({ src, autoRotate = true }: Props) {
     <div style={{ width: "100%", height: "100%", minHeight: "500px", position: "relative" }}>
       <div ref={mountRef} style={{ width: "100%", height: "100%" }} />
       {loading && <div style={msgStyle}>Chargement du modèle...</div>}
-      {error && <div style={{...msgStyle, color: "#ff4444"}}>{error}</div>}
+      {error && <div style={{ ...msgStyle, color: "#ff4444" }}>{error}</div>}
     </div>
   );
 }
 
 const msgStyle: React.CSSProperties = {
-  position: "absolute", 
-  top: "50%", 
-  left: "50%", 
+  position: "absolute",
+  top: "50%",
+  left: "50%",
   transform: "translate(-50%, -50%)",
-  background: "rgba(0,0,0,0.8)", 
-  padding: "12px 20px", 
-  borderRadius: "20px", 
-  color: "white", 
-  zIndex: 10
+  background: "rgba(0,0,0,0.8)",
+  padding: "12px 20px",
+  borderRadius: "20px",
+  color: "white",
+  zIndex: 10,
 };
