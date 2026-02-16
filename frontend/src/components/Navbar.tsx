@@ -1,13 +1,14 @@
 import { useContext, useState } from "react";
-import { Link, NavLink } from "react-router-dom"; // ✅ Ajouté pour corriger l'erreur NavLink
-import { AuthContext } from "../context/AuthContext"; // ✅ Vérifie que le chemin vers ton context est bon
+import { Link, NavLink } from "react-router-dom";
+import { AuthContext } from "../context/AuthContext";
 
-// ✅ Ajouté pour corriger l'erreur activeClass
+// Gestion de la classe active pour le style
 const activeClass = ({ isActive }: { isActive: boolean }) => 
   isActive ? "nav-item active" : "nav-item";
 
 export default function Navbar() {
-  const { token, user, logout } = useContext(AuthContext);
+  // ✅ On ajoute isAdmin ici pour savoir si l'utilisateur a les droits
+  const { token, user, isAdmin, logout } = useContext(AuthContext);
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -26,12 +27,31 @@ export default function Navbar() {
           <NavLink to="/catalogue" className={activeClass} onClick={() => setIsOpen(false)}>Catalogue</NavLink>
           <NavLink to="/print" className={activeClass} onClick={() => setIsOpen(false)}>Impression 3D</NavLink>
           <NavLink to="/cart" className={activeClass} onClick={() => setIsOpen(false)}>Panier</NavLink>
+
+          {/* ✅ LIEN ADMIN : Apparaît uniquement si l'utilisateur est admin */}
+          {isAdmin && (
+            <NavLink 
+              to="/admin" 
+              className={activeClass} 
+              onClick={() => setIsOpen(false)}
+              style={{ color: "var(--accent)", fontWeight: "bold" }}
+            >
+              Admin 🛡️
+            </NavLink>
+          )}
+
           <NavLink to="/profile" className={activeClass} onClick={() => setIsOpen(false)}>Mon espace</NavLink>
 
           {token ? (
             <div className="nav-auth-mobile">
               <span className="user-name-display">{user?.firstName}</span>
-              <button onClick={logout} className="btn logout-style">Déconnexion</button>
+              <button 
+                onClick={logout} 
+                className="btn" 
+                style={{ background: "rgba(255, 107, 107, 0.1)", color: "#ff6b6b", border: "1px solid rgba(255, 107, 107, 0.2)" }}
+              >
+                Déconnexion
+              </button>
             </div>
           ) : (
             <div className="nav-auth-mobile">
