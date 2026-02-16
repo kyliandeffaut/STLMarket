@@ -22,7 +22,7 @@ body {
 
   background-image: 
     /* 1. Le "Spotlight" violet en haut pour l'ambiance */
-    radial-gradient(circle at 50% 0%, rgba(34, 143, 238, 0.25) 0%, transparent 70%),
+    radial-gradient(circle at 50% 0%, rgba(99, 34, 238, 0.25) 0%, transparent 70%),
 
     /* 2. Les GROSSES lignes (Violet Fluo - Très visibles) */
     linear-gradient(rgba(173, 34, 238, 0.35) 2px, transparent 2px),
