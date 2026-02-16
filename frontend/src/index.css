@@ -17,31 +17,31 @@ body {
   font-family: 'Inter', system-ui, sans-serif;
   color: var(--text);
   
-  /* 1. Fond très sombre teinté de violet pour faire ressortir le néon */
-  background-color: #020410; 
+  /* Fond très sombre pour le contraste */
+  background-color: #020205; 
 
   background-image: 
-    /* A. Lueur centrale en haut (Spotlight) */
-    radial-gradient(circle at 50% 0%, rgba(120, 50, 255, 0.25) 0%, transparent 60%),
+    /* 1. Le "Spotlight" violet en haut pour l'ambiance */
+    radial-gradient(circle at 50% 0%, rgba(173, 34, 238, 0.25) 0%, transparent 70%),
 
-    /* B. Les GROSSES lignes (Cyan Brillant - Opacité forte 0.3) */
-    linear-gradient(rgba(34, 211, 238, 0.3) 2px, transparent 2px),
-    linear-gradient(90deg, rgba(34, 211, 238, 0.3) 2px, transparent 2px),
+    /* 2. Les GROSSES lignes (Violet Fluo - Très visibles) */
+    linear-gradient(rgba(173, 34, 238, 0.35) 2px, transparent 2px),
+    linear-gradient(90deg, rgba(173, 34, 238, 0.35) 2px, transparent 2px),
 
-    /* C. Les PETITES lignes (Violet - Opacité moyenne 0.15) */
-    linear-gradient(rgba(168, 85, 247, 0.15) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(168, 85, 247, 0.15) 1px, transparent 1px);
+    /* 3. Les PETITES lignes (Violet plus doux) */
+    linear-gradient(rgba(173, 34, 238, 0.15) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(173, 34, 238, 0.15) 1px, transparent 1px);
     
-  /* Tailles : Lueur (Full), Gros carreaux (100px), Petits carreaux (20px) */
+  /* Réglages des tailles de la grille */
   background-size: 100% 100%, 100px 100px, 100px 100px, 20px 20px, 20px 20px;
   
-  /* On aligne tout parfaitement */
+  /* Alignement précis */
   background-position: center top, -2px -2px, -2px -2px, -1px -1px, -1px -1px;
   
   min-height: 100vh;
   
-  /* Optionnel : Ajoute un effet de vignetage sombre sur les bords */
-  box-shadow: inset 0 0 150px rgba(0,0,0,0.9);
+  /* Petit effet d'ombre sur les bords pour l'immersion */
+  box-shadow: inset 0 0 150px rgba(0,0,0,0.8);
 }
 
 .container {
