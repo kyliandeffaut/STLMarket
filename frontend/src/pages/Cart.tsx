@@ -21,18 +21,17 @@ export default function Cart() {
 
     setPaying(true);
     try {
-      // 2. Préparation des données (LE CORRECTIF EST ICI)
+      // 2. Préparation des données
       const payload: OrderItemDTO[] = items.map((it) => {
         
-        // 🧹 NETTOYAGE CRITIQUE : On enlève le préfixe "print_" ou "file_" s'il existe
-        // Le serveur attend "697b..." et non "print_697b..."
+        // 🧹 NETTOYAGE : On enlève le préfixe "print_" ou "file_"
         const realId = it._id.replace(/^(file_|print_)/, "");
 
         // --- CAS 1 : C'est un FICHIER 3D ---
         if (it.kind === "file") {
           return {
             kind: "file",
-            fileId: realId, // ✅ ID propre
+            fileId: realId,
             title: it.title,
             price: it.price,
             quantity: it.quantity,
@@ -43,11 +42,10 @@ export default function Cart() {
         // --- CAS 2 : C'est une IMPRESSION 3D ---
         return {
           kind: "print",
-          requestId: realId, // ✅ ID propre
+          requestId: realId,
           title: it.title,
           price: it.price,
           quantity: it.quantity,
-          // Pas besoin de filename ici
         };
       });
 
@@ -63,7 +61,6 @@ export default function Cart() {
 
     } catch (e: any) {
       console.error("Erreur paiement:", e);
-      // On récupère le message d'erreur précis du serveur
       const msg = e.response?.data?.message || e.response?.data?.error || "Erreur de connexion au serveur";
       alert(`Échec du paiement : ${msg}`);
     } finally {
@@ -72,53 +69,84 @@ export default function Cart() {
   };
 
   return (
-    <div className="container" style={{ padding: "40px 20px" }}>
-      <div className="card" style={{ padding: 24 }}>
-        <h1 style={{ marginTop: 0, fontSize: "2rem" }}>Panier</h1>
+    <div className="container">
+      {/* ✅ ENVELOPPE GLOBALE POUR LA LISIBILITÉ */}
+      <div className="main-content-panel">
+        
+        <h1 style={{ marginTop: 0, marginBottom: "30px" }}>Mon Panier 🛒</h1>
 
         {items.length === 0 ? (
-          <div style={{ textAlign: "center", padding: "40px 0", opacity: 0.6 }}>
-            <p style={{ fontSize: "1.2rem" }}>Votre panier est vide.</p>
-            <button className="btn" onClick={() => navigate("/")}>Retourner au catalogue</button>
+          // --- PANIER VIDE ---
+          <div style={{ textAlign: "center", padding: "60px 20px" }}>
+            <p style={{ fontSize: "1.2rem", color: "var(--muted)", marginBottom: "20px" }}>
+              Votre panier est vide pour le moment.
+            </p>
+            <button className="btn primary" onClick={() => navigate("/catalogue")}>
+              Parcourir le catalogue
+            </button>
           </div>
         ) : (
+          // --- CONTENU DU PANIER ---
           <>
-            {/* Liste des produits */}
-            <div style={{ display: "grid", gap: 16 }}>
+            <div style={{ display: "grid", gap: "15px" }}>
               {items.map((it) => (
                 <div
                   key={it._id}
-                  className="card"
                   style={{
-                    padding: 16,
                     display: "flex",
                     justifyContent: "space-between",
                     alignItems: "center",
-                    gap: 16,
-                    background: "rgba(255,255,255,0.03)",
-                    border: "1px solid rgba(255,255,255,0.05)"
+                    padding: "20px",
+                    background: "rgba(255,255,255,0.03)", // Carte translucide
+                    borderRadius: "12px",
+                    border: "1px solid rgba(255,255,255,0.05)",
+                    flexWrap: "wrap",
+                    gap: "15px"
                   }}
                 >
-                  <div style={{ minWidth: 0 }}>
-                    <div style={{ fontWeight: 700, fontSize: "1.1rem", marginBottom: 4 }}>
+                  {/* Info Produit */}
+                  <div style={{ flex: 1, minWidth: "200px" }}>
+                    <div style={{ fontWeight: 700, fontSize: "1.1rem", marginBottom: "4px" }}>
                       {it.title}
                     </div>
-                    <div style={{ opacity: 0.6, fontSize: 14 }}>
+                    <div style={{ fontSize: "0.9rem", color: "var(--muted)" }}>
                       {it.kind === "print" ? "🖨️ Impression 3D" : "💾 Fichier STL"} • {it.price.toFixed(2)} € / unité
                     </div>
                   </div>
 
-                  <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                    {/* Contrôles Quantité */}
-                    <div className="row" style={{ background: "rgba(0,0,0,0.3)", borderRadius: 8, padding: 2 }}>
-                      <button className="btn ghost" style={{ padding: "6px 12px" }} onClick={() => decreaseItem(it._id)}>−</button>
-                      <span style={{ fontWeight: "bold", minWidth: 24, textAlign: "center" }}>{it.quantity}</span>
-                      <button className="btn ghost" style={{ padding: "6px 12px" }} onClick={() => addItem(it, 1)}>+</button>
+                  {/* Contrôles (Quantité + Supprimer) */}
+                  <div style={{ display: "flex", alignItems: "center", gap: "20px" }}>
+                    
+                    {/* Selecteur Quantité */}
+                    <div style={{ display: "flex", alignItems: "center", background: "rgba(0,0,0,0.3)", borderRadius: "8px", border: "1px solid rgba(255,255,255,0.1)" }}>
+                      <button 
+                        className="btn" 
+                        style={{ border: "none", padding: "5px 12px", background: "transparent", color: "var(--text)" }} 
+                        onClick={() => decreaseItem(it._id)}
+                      >
+                        −
+                      </button>
+                      <span style={{ fontWeight: "bold", minWidth: "30px", textAlign: "center" }}>
+                        {it.quantity}
+                      </span>
+                      <button 
+                        className="btn" 
+                        style={{ border: "none", padding: "5px 12px", background: "transparent", color: "var(--text)" }} 
+                        onClick={() => addItem(it, 1)}
+                      >
+                        +
+                      </button>
                     </div>
 
+                    {/* Prix total ligne */}
+                    <span style={{ fontWeight: "bold", minWidth: "70px", textAlign: "right", fontSize: "1.1rem" }}>
+                        {(it.price * it.quantity).toFixed(2)} €
+                    </span>
+
+                    {/* Bouton Supprimer */}
                     <button
                       className="btn"
-                      style={{ color: "var(--danger)", borderColor: "rgba(248, 81, 73, 0.4)", background: "transparent" }}
+                      style={{ color: "#ff6b6b", borderColor: "rgba(255, 107, 107, 0.3)", padding: "8px 12px" }}
                       onClick={() => removeItem(it._id)}
                     >
                       Supprimer
@@ -128,37 +156,42 @@ export default function Cart() {
               ))}
             </div>
 
-            {/* Total et Bouton Payer */}
+            {/* --- FOOTER DU PANIER (TOTAL) --- */}
             <div
               style={{
-                marginTop: 30,
-                paddingTop: 20,
-                borderTop: "1px solid var(--border)",
+                marginTop: "40px",
+                paddingTop: "30px",
+                borderTop: "1px solid rgba(255,255,255,0.1)",
                 display: "flex",
                 justifyContent: "space-between",
                 alignItems: "center",
                 flexWrap: "wrap",
-                gap: 20,
+                gap: "20px",
               }}
             >
               <div>
-                <div style={{ fontSize: 14, opacity: 0.6 }}>Total de la commande</div>
-                <div style={{ fontSize: 28, fontWeight: 900, color: "var(--primary)" }}>
+                <div style={{ fontSize: "14px", color: "var(--muted)", marginBottom: "5px" }}>Total de la commande</div>
+                <div style={{ fontSize: "36px", fontWeight: "900", color: "var(--accent)", textShadow: "0 0 20px rgba(34, 211, 238, 0.3)" }}>
                   {subtotal.toFixed(2)} €
                 </div>
               </div>
 
-              <div style={{ display: "flex", gap: 12 }}>
-                <button className="btn" onClick={clear} disabled={paying}>
+              <div style={{ display: "flex", gap: "15px" }}>
+                <button 
+                  className="btn" 
+                  onClick={clear} 
+                  disabled={paying}
+                  style={{ background: "rgba(255,255,255,0.05)" }}
+                >
                   Vider le panier
                 </button>
                 <button
                   className="btn primary"
                   onClick={onPay}
                   disabled={paying}
-                  style={{ padding: "12px 32px", fontSize: "1.1rem" }}
+                  style={{ padding: "14px 32px", fontSize: "1.1rem" }}
                 >
-                  {paying ? "Traitement..." : "Payer la commande"}
+                  {paying ? "Traitement..." : "Payer la commande 💳"}
                 </button>
               </div>
             </div>
