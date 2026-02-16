@@ -36,44 +36,36 @@ export default function Catalogue() {
   };
 
   return (
-    <section className="container">
-      <header style={{ marginBottom: 40 }}>
-        <h1>Catalogue STL</h1>
-        <p style={{ color: "var(--muted)" }}>Découvrez les meilleurs modèles 3D de la communauté.</p>
-        
-        {/* Barre de recherche "Pilule" */}
-        <div className="search-wrapper">
-          <input 
-            className="search-input-fancy" 
-            placeholder="🔍 Rechercher un modèle..." 
-            value={q}
-            onChange={(e) => setQ(e.target.value)} 
-          />
-        </div>
-      </header>
+    <div className="container">
+      <h1>Catalogue STL</h1>
+      
+      {/* Barre de recherche "Pilule" */}
+      <div className="search-wrapper">
+        <input 
+          className="search-input-fancy" 
+          placeholder="🔍 Rechercher un modèle..." 
+          value={q}
+          onChange={(e) => setQ(e.target.value)} 
+        />
+      </div>
 
-      {/* Grille de cartes vibrantes */}
-      <div className="grid cols-3" style={{ gap: 30 }}>
+      <div className="catalogue-grid">
         {filtered.map((f) => (
           <article className="product-card" key={f._id}>
-            {/* Zone Image/Aperçu */}
-            <div className="card-image-placeholder">
-              📦
-            </div>
+            {/* Zone visuelle */}
+            <div className="card-preview">📦</div>
 
-            <div style={{ padding: 20, display: "flex", flexDirection: "column", flexGrow: 1 }}>
-              <h3 style={{ margin: 0, fontSize: "1.2rem" }}>{f.title}</h3>
+            <div className="card-content">
+              <h3 style={{ margin: 0 }}>{f.title}</h3>
               <div style={{ color: "var(--muted)", fontSize: 13, marginTop: 8 }}>
                 📂 {f.category} • ⬇️ {f.downloads} dl
               </div>
 
-              <div style={{ flexGrow: 1, minHeight: 20 }}></div>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 25 }}>
+                <span className="price-text">{f.price.toFixed(2)} €</span>
 
-              <div className="row" style={{ justifyContent: "space-between", alignItems: "center", marginTop: 20 }}>
-                <span className="price-tag">{f.price.toFixed(2)} €</span>
-
-                <div className="row" style={{ gap: 8 }}>
-                  <button className="btn primary" type="button" onClick={() => onAdd(f)}>
+                <div style={{ display: "flex", gap: 10 }}>
+                  <button className="btn primary" onClick={() => onAdd(f)}>
                     {addedId === f._id ? "Ajouté ✅" : "Ajouter"}
                   </button>
 
@@ -86,6 +78,6 @@ export default function Catalogue() {
           </article>
         ))}
       </div>
-    </section>
+    </div>
   );
 }
