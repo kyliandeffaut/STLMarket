@@ -1,39 +1,24 @@
 :root {
   --bg: #0b0d11;
-  --panel: rgba(21, 24, 35, 0.85);
+  --panel: #151823;
   --text: #f0f2f5;
   --muted: #94a3b8;
   --primary: #5aa9ff;
-  --primary-glow: rgba(90, 169, 255, 0.3);
   --accent: #6de39b;
   --danger: #ff6b6b;
   --radius: 14px;
   --nav-height: 64px;
-  --glass: blur(12px) saturate(180%);
 }
 
-* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-html, body, #root { height: 100%; scroll-behavior: smooth; }
+* { box-sizing: border-box; }
+html, body, #root { height: 100%; }
 
 body {
   margin: 0;
-  background: var(--bg);
-  background-image: 
-    radial-gradient(circle at 0% 0%, rgba(90, 169, 255, 0.07) 0, transparent 40%),
-    radial-gradient(circle at 100% 100%, rgba(109, 227, 155, 0.05) 0, transparent 40%);
+  background: linear-gradient(180deg, #0c0e13, #0f1115);
   color: var(--text);
   font-family: ui-sans-serif, system-ui, -apple-system, sans-serif;
   overflow-x: hidden;
-}
-
-/* --- TITRES MODERNES --- */
-h1, h2, .nav-logo {
-  background: linear-gradient(135deg, #fff 0%, var(--muted) 100%);
-  background-clip: text;
-  -webkit-background-clip: text;
-  color: transparent;
-  -webkit-text-fill-color: transparent;
-  font-weight: 800;
 }
 
 .container {
@@ -41,64 +26,48 @@ h1, h2, .nav-logo {
   margin: 0 auto;
   padding: 20px 16px;
   width: 100%;
-  animation: fadeIn 0.5s ease-out;
+}
+
+/* TITRES AVEC COMPATIBILITÉ STANDARD */
+h1 {
+  font-size: 2.2rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, #ffffff 0%, #94a3b8 100%);
+  background-clip: text; /* Standard */
+  -webkit-background-clip: text; /* Chrome/Safari */
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 20px;
 }
 
 .card {
   background: var(--panel);
-  backdrop-filter: var(--glass);
-  -webkit-backdrop-filter: var(--glass);
   border-radius: var(--radius);
-  padding: 20px;
-  box-shadow: 0 12px 32px rgba(0,0,0,.4);
-  border: 1px solid rgba(255,255,255,.08);
-  transition: transform 0.2s, border-color 0.2s;
+  padding: 24px;
+  box-shadow: 0 8px 32px rgba(0,0,0,.4);
+  border: 1px solid rgba(255,255,255,.06);
+  transition: transform 0.2s ease;
 }
 
-.card:hover {
-  transform: translateY(-2px);
-  border-color: rgba(90, 169, 255, 0.3);
-}
-
-/* --- ELEMENTS UI --- */
 .btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
   border: 1px solid rgba(255,255,255,.12);
-  background: rgba(255,255,255,0.05);
+  background: #1b2030;
   color: var(--text);
   padding: 10px 18px;
   border-radius: 12px;
   cursor: pointer;
   font-weight: 600;
-  transition: all 0.2s;
+  transition: 0.2s;
 }
 
-.btn:hover { filter: brightness(1.2); transform: scale(1.02); }
+.btn:hover { filter: brightness(1.2); transform: translateY(-2px); }
+.btn.primary { background: var(--primary); color: #0a0f1a; border: none; }
 
-.btn.primary { 
-  background: var(--primary); 
-  color: #0a0f1a; 
-  border: none; 
-  box-shadow: 0 4px 14px var(--primary-glow);
-}
-
-.input, .select {
-  width: 100%;
-  padding: 12px;
-  border-radius: 12px;
-  border: 1px solid rgba(255,255,255,.12);
-  background: rgba(0,0,0,0.2);
-  color: var(--text);
-  font-size: 16px;
-  outline: none;
-}
-
-.input:focus { border-color: var(--primary); }
-
-/* --- PAGE DÉTAIL PRODUIT --- */
+/* GRILLE RÉPONSIVE */
 .detail-grid {
   display: grid;
   grid-template-columns: 1fr;
@@ -110,9 +79,4 @@ h1, h2, .nav-logo {
     grid-template-columns: 1.5fr 1fr;
     height: calc(100vh - 120px);
   }
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
 }
