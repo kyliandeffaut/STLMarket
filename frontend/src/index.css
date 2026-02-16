@@ -16,16 +16,32 @@ body {
   margin: 0;
   font-family: 'Inter', system-ui, sans-serif;
   color: var(--text);
-  background-color: #0f111a;
   
-  /* Grosses taches de couleurs vives */
+  /* 1. Fond très sombre teinté de violet pour faire ressortir le néon */
+  background-color: #020410; 
+
   background-image: 
-    radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.4) 0px, transparent 50%), /* Indigo fort en haut gauche */
-    radial-gradient(at 100% 0%, rgba(236, 72, 153, 0.3) 0px, transparent 50%), /* Rose fort en haut droite */
-    radial-gradient(at 100% 100%, rgba(34, 211, 238, 0.3) 0px, transparent 50%); /* Cyan en bas droite */
+    /* A. Lueur centrale en haut (Spotlight) */
+    radial-gradient(circle at 50% 0%, rgba(120, 50, 255, 0.25) 0%, transparent 60%),
+
+    /* B. Les GROSSES lignes (Cyan Brillant - Opacité forte 0.3) */
+    linear-gradient(rgba(34, 211, 238, 0.3) 2px, transparent 2px),
+    linear-gradient(90deg, rgba(34, 211, 238, 0.3) 2px, transparent 2px),
+
+    /* C. Les PETITES lignes (Violet - Opacité moyenne 0.15) */
+    linear-gradient(rgba(168, 85, 247, 0.15) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(168, 85, 247, 0.15) 1px, transparent 1px);
     
-  background-attachment: fixed; /* Le fond reste fixe quand tu scrolles */
+  /* Tailles : Lueur (Full), Gros carreaux (100px), Petits carreaux (20px) */
+  background-size: 100% 100%, 100px 100px, 100px 100px, 20px 20px, 20px 20px;
+  
+  /* On aligne tout parfaitement */
+  background-position: center top, -2px -2px, -2px -2px, -1px -1px, -1px -1px;
+  
   min-height: 100vh;
+  
+  /* Optionnel : Ajoute un effet de vignetage sombre sur les bords */
+  box-shadow: inset 0 0 150px rgba(0,0,0,0.9);
 }
 
 .container {
