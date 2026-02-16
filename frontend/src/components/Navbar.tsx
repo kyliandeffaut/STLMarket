@@ -2,15 +2,14 @@ import { useContext, useState } from "react";
 import { AuthContext } from "../context/AuthContext";
 import { Link, NavLink } from "react-router-dom";
 
-// Petite modification pour combiner tes classes avec celles du responsive
+// Gestion simplifiée des classes actives
 const activeClass = ({ isActive }: { isActive: boolean }) => 
   isActive ? "nav-item active" : "nav-item";
 
 export default function Navbar() {
   const { token, user, isAdmin, logout } = useContext(AuthContext);
-  const [isOpen, setIsOpen] = useState(false); // État pour ouvrir/fermer le menu
+  const [isOpen, setIsOpen] = useState(false);
 
-  // Fonction pour fermer le menu quand on clique sur un lien
   const closeMenu = () => setIsOpen(false);
 
   const handleLogout = () => {
@@ -19,27 +18,21 @@ export default function Navbar() {
   };
 
   return (
-    // On utilise la classe CSS .navbar définie dans index.css
     <header className="navbar">
       <div className="navbar-container">
         
         {/* --- LOGO --- */}
         <Link to="/" className="nav-logo" onClick={closeMenu}>
-          🧩 <span style={{ color: "var(--primary)" }}>STLMarket</span>
+          🧩 STLMarket
         </Link>
 
-        {/* --- BOUTON BURGER (Visible uniquement sur mobile) --- */}
-        <button 
-          className="mobile-menu-btn"
-          onClick={() => setIsOpen(!isOpen)}
-        >
+        {/* --- BOUTON BURGER --- */}
+        <button className="mobile-menu-btn" onClick={() => setIsOpen(!isOpen)}>
           {isOpen ? "✕" : "☰"}
         </button>
 
-        {/* --- LIENS DE NAVIGATION --- */}
-        {/* La classe 'open' active l'affichage sur mobile via le CSS */}
+        {/* --- NAVIGATION --- */}
         <nav className={`nav-links ${isOpen ? "open" : ""}`}>
-          
           <NavLink to="/catalogue" className={activeClass} onClick={closeMenu}>
             Catalogue
           </NavLink>
@@ -62,30 +55,25 @@ export default function Navbar() {
             </NavLink>
           )}
 
-          {/* --- GESTION CONNEXION / DÉCONNEXION --- */}
-          {!token ? (
-            <div className="row" style={{ gap: 10, marginTop: 5 }}>
+          <div className="nav-auth-section">
+            {!token ? (
+              <div className="row">
                 <NavLink to="/login" className="btn ghost" onClick={closeMenu}>
-                    Se connecter
+                  Connexion
                 </NavLink>
                 <NavLink to="/register" className="btn primary" onClick={closeMenu}>
-                    S’inscrire
+                  S’inscrire
                 </NavLink>
-            </div>
-          ) : (
-            <div className="user-menu" style={{ display: "flex", alignItems: "center", gap: 10 }}>
-              <span style={{ opacity: 0.7, fontSize: 14 }}>
-                {user?.firstName}
-              </span>
-              <button 
-                onClick={handleLogout} 
-                className="btn" 
-                style={{ padding: "6px 12px", fontSize: 13, background: "rgba(255,50,50,0.1)", color: "#ff6b6b", border: "1px solid rgba(255,50,50,0.2)" }}
-              >
-                Déconnexion
-              </button>
-            </div>
-          )}
+              </div>
+            ) : (
+              <div className="user-menu">
+                <span className="user-name">{user?.firstName}</span>
+                <button onClick={handleLogout} className="btn logout-btn">
+                  Déconnexion
+                </button>
+              </div>
+            )}
+          </div>
         </nav>
       </div>
     </header>
