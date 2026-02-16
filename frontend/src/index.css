@@ -10,6 +10,8 @@
   --nav-height: 70px;
 }
 
+* { box-sizing: border-box; }
+
 body {
   margin: 0;
   background-color: var(--bg);
@@ -30,7 +32,6 @@ body {
 .navbar {
   background: rgba(15, 17, 26, 0.85);
   backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
   height: var(--nav-height);
   position: sticky;
   top: 0;
@@ -47,16 +48,6 @@ body {
   align-items: center;
 }
 
-/* --- BOUTON BURGER (MOBILE) --- */
-.mobile-menu-btn {
-  display: none;
-  background: none;
-  border: none;
-  color: white;
-  font-size: 1.8rem;
-  cursor: pointer;
-}
-
 .nav-logo {
   font-size: 1.5rem;
   font-weight: 900;
@@ -67,22 +58,42 @@ body {
   text-decoration: none;
 }
 
-.nav-links {
-  display: flex;
-  align-items: center;
-  gap: 20px;
+.nav-links { display: flex; align-items: center; gap: 20px; }
+.nav-item { text-decoration: none; color: var(--muted); font-weight: 600; transition: 0.3s; }
+.nav-item.active, .nav-item:hover { color: #fff; }
+
+.mobile-menu-btn {
+  display: none;
+  background: none;
+  border: none;
+  color: white;
+  font-size: 1.8rem;
+  cursor: pointer;
 }
 
-.nav-item {
-  text-decoration: none;
-  color: var(--muted);
-  font-weight: 600;
+/* --- CATALOGUE --- */
+.catalogue-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 25px;
+  margin-top: 30px;
+}
+
+.product-card {
+  background: var(--panel);
+  border-radius: var(--radius);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
   transition: 0.3s;
 }
 
-.nav-item.active, .nav-item:hover { color: #fff; }
+.product-card:hover { transform: translateY(-8px); border-color: var(--primary); }
+.card-preview { height: 180px; background: linear-gradient(45deg, #1e253a, #2d3550); display: flex; align-items: center; justify-content: center; font-size: 40px; }
+.card-content { padding: 20px; }
 
-/* --- BARRE DE RECHERCHE --- */
+/* --- RECHERCHE --- */
 .search-input-fancy {
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.1);
@@ -93,51 +104,12 @@ body {
   outline: none;
   transition: all 0.3s;
 }
+.search-input-fancy:focus { border-color: var(--primary); width: 320px; }
 
-.search-input-fancy:focus {
-  border-color: var(--primary);
-  background: rgba(255, 255, 255, 0.1);
-  width: 320px; /* S'agrandit au focus */
-}
-
-/* --- RESPONSIVE --- */
-@media (max-width: 850px) {
-  .mobile-menu-btn { display: block; }
-
-  .nav-links {
-    position: fixed;
-    top: var(--nav-height);
-    left: 0;
-    right: 0;
-    height: 0;
-    overflow: hidden;
-    flex-direction: column;
-    background: #0f111a;
-    transition: all 0.4s ease-in-out;
-    padding: 0;
-    gap: 0;
-  }
-
-  .nav-links.open {
-    height: calc(100vh - var(--nav-height));
-    padding: 40px 0;
-    gap: 30px;
-  }
-}
-
-/* --- BOUTONS & CARTES (Reste inchangé) --- */
-.btn { padding: 10px 20px; border-radius: 12px; font-weight: 700; cursor: pointer; border: 1px solid rgba(255,255,255,0.1); background: #1e253a; color: white; text-decoration: none; }
-.btn.primary { background: var(--vibrant-gradient); border: none; }
-.catalogue-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 25px; margin-top: 30px; }
-.product-card { background: var(--panel); border-radius: var(--radius); border: 1px solid rgba(255,255,255,0.08); overflow: hidden; display: flex; flex-direction: column; transition: 0.3s; }
-.product-card:hover { transform: translateY(-8px); border-color: var(--primary); }
-.card-preview { height: 180px; background: linear-gradient(45deg, #1e253a, #2d3550); display: flex; align-items: center; justify-content: center; font-size: 40px; }
-.card-content { padding: 20px; }
-
-/* --- CONTENEUR DE FORMULAIRE --- */
+/* --- AUTH --- */
 .auth-container {
   width: 100%;
-  max-width: 500px; /* On empêche le formulaire de s'étaler */
+  max-width: 500px;
   margin: 60px auto;
   background: var(--panel);
   padding: 40px;
@@ -146,43 +118,51 @@ body {
   box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
 }
 
-/* --- LES BARRES DE SAISIE (INPUTS) --- */
+.auth-form-group { margin-bottom: 20px; text-align: left; }
+.auth-label { display: block; margin-bottom: 8px; font-size: 14px; font-weight: 600; color: var(--muted); }
+
 .auth-input {
   display: block;
   width: 100%;
   padding: 14px 18px;
-  background: rgba(0, 0, 0, 0.2) !important; /* On force le fond sombre */
+  background: rgba(0, 0, 0, 0.2) !important;
   border: 2px solid rgba(255, 255, 255, 0.1) !important;
   border-radius: 12px;
   color: white !important;
-  font-size: 16px;
-  margin-top: 8px;
-  transition: all 0.3s ease;
   outline: none;
+  transition: 0.3s;
 }
 
-.auth-input:focus {
-  border-color: var(--primary) !important;
-  box-shadow: 0 0 15px rgba(99, 102, 241, 0.3);
-  background: rgba(255, 255, 255, 0.05) !important;
-}
-
-/* --- BOUTON DE VALIDATION --- */
 .btn-auth-submit {
   width: 100%;
   padding: 16px;
-  margin-top: 25px;
+  margin-top: 10px;
   border-radius: 12px;
   background: var(--vibrant-gradient);
   color: white;
   font-weight: 800;
-  font-size: 16px;
   border: none;
   cursor: pointer;
-  transition: transform 0.2s, filter 0.2s;
 }
 
-.btn-auth-submit:hover {
-  transform: translateY(-2px);
-  filter: brightness(1.1);
+/* --- DETAIL PRODUIT --- */
+.detail-grid {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 25px;
+  margin-top: 40px;
+}
+
+.btn { padding: 10px 20px; border-radius: 12px; font-weight: 700; cursor: pointer; border: 1px solid rgba(255,255,255,0.1); background: #1e253a; color: white; text-decoration: none; display: inline-flex; align-items: center; }
+.btn.primary { background: var(--vibrant-gradient); border: none; }
+
+@media (max-width: 850px) {
+  .mobile-menu-btn { display: block; }
+  .nav-links {
+    position: fixed; top: var(--nav-height); left: 0; right: 0;
+    height: 0; overflow: hidden; flex-direction: column;
+    background: #0f111a; transition: 0.4s; padding: 0;
+  }
+  .nav-links.open { height: 100vh; padding: 40px 0; gap: 30px; }
+  .detail-grid { grid-template-columns: 1fr; }
 }
