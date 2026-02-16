@@ -52,45 +52,77 @@ export default function ProductDetail() {
     window.setTimeout(() => setAdded(false), 900);
   };
 
-  if (loading) return <div className="container" style={{ padding: 40, textAlign: "center" }}>Chargement...</div>;
-  if (!item) return <div className="container" style={{ padding: 40, textAlign: "center" }}>Produit introuvable.</div>;
+  if (loading) return <div className="container" style={{ textAlign: "center", padding: "100px" }}>Chargement...</div>;
+  if (!item) return <div className="container" style={{ textAlign: "center", padding: "100px" }}>Produit introuvable.</div>;
 
-  // Ton Cloud Name est 'dvgdc8bq0'
+  // --- LOGIQUE CLOUDINARY ---
   const CLOUD_NAME = "dvgdc8bq0";
-  // On construit l'URL directe vers ton Cloudinary
-  const stlUrl = `https://res.cloudinary.com/${CLOUD_NAME}/raw/upload/v1/${encodeURIComponent(item.filename)}`;
+  // On s'assure de ne pas avoir de double extension ou de problème d'encodage
+  const cleanPublicId = item.filename.replace(/\.[^/.]+$/, "");
+  const stlUrl = `https://res.cloudinary.com/${CLOUD_NAME}/raw/upload/v1/${cleanPublicId}.stl`;
 
   return (
-    <section className="container" style={{ marginTop: "40px" }}>
-      <div className="detail-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px" }}>
+    <div className="container" style={{ marginTop: "20px" }}>
+      <div className="detail-grid">
         
-        {/* VISUALISEUR 3D */}
-        <div className="card" style={{ padding: 0, overflow: "hidden", background: "#0b0e14", borderRadius: "12px", height: "500px" }}>
+        {/* CORRECTION ICI : 
+          On force une min-height et un aspect-ratio pour que le CSS ne l'écrase pas.
+          Le position relative aide Three.js à calculer sa taille.
+        */}
+        <div className="card" style={{ 
+          padding: 0, 
+          overflow: "hidden", 
+          background: "#000", 
+          minHeight: "500px", 
+          height: "100%",
+          position: "relative",
+          display: "block" // Assure que c'est un bloc
+        }}>
           <STLViewer src={stlUrl} />
         </div>
 
         {/* INFORMATIONS PRODUIT */}
-        <div className="card" style={{ padding: "30px", display: "flex", flexDirection: "column" }}>
-          <h1 style={{ marginTop: 0 }}>{item.title}</h1>
-          <div style={{ marginBottom: 20, fontSize: 14, color: "var(--text-muted)" }}>
-             📂 {item.category} • ⬇️ {item.downloads} téléchargements
+        <div className="card" style={{ display: "flex", flexDirection: "column", padding: "30px" }}>
+          <h1 style={{ margin: "0 0 15px 0" }}>{item.title}</h1>
+          
+          <div style={{ marginBottom: "20px", display: "flex", gap: "10px", flexWrap: "wrap" }}>
+              <span style={{ 
+                background: "rgba(99, 102, 241, 0.2)", 
+                color: "var(--primary)",
+                fontSize: "12px", 
+                padding: "5px 12px",
+                borderRadius: "20px",
+                fontWeight: "bold"
+              }}>
+                📂 {item.category}
+              </span>
+              <span style={{ color: "var(--muted)", fontSize: "14px", alignSelf: "center" }}>
+                ⬇️ {item.downloads} téléchargements
+              </span>
           </div>
-          <p style={{ color: "var(--text-muted)", flexGrow: 1 }}>
-            {item.description || "Description indisponible."}
+
+          <p style={{ color: "var(--muted)", flexGrow: 1, lineHeight: "1.7", fontSize: "16px" }}>
+            {item.description || "Aucune description fournie pour ce modèle 3D."}
           </p>
           
-          <div style={{ marginTop: "auto", borderTop: "1px solid var(--border)", paddingTop: "20px" }}>
+          <div style={{ marginTop: "30px", borderTop: "1px solid rgba(255,255,255,0.1)", paddingTop: "25px" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <span style={{ fontSize: "28px", fontWeight: "bold", color: "var(--primary)" }}>
+              <span style={{ fontSize: "32px", fontWeight: "900", color: "var(--accent)" }}>
                 {item.price.toFixed(2)} €
               </span>
-              <button className={`btn ${added ? "" : "primary"}`} onClick={onAdd} disabled={added}>
-                {added ? "Dans le panier ✅" : "Ajouter au panier 🛒"}
+              
+              <button 
+                className={`btn ${added ? "" : "primary"}`} 
+                onClick={onAdd} 
+                disabled={added}
+                style={{ minWidth: "200px", padding: "14px" }}
+              >
+                {added ? "Ajouté ! ✅" : "Ajouter au panier 🛒"}
               </button>
             </div>
           </div>
         </div>
       </div>
-    </section>
+    </div>
   );
 }
