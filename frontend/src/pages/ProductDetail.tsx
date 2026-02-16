@@ -52,63 +52,45 @@ export default function ProductDetail() {
     window.setTimeout(() => setAdded(false), 900);
   };
 
-  if (loading) return <div className="container" style={{ textAlign: "center", padding: "100px" }}>Chargement...</div>;
-  if (!item) return <div className="container" style={{ textAlign: "center", padding: "100px" }}>Produit introuvable.</div>;
+  if (loading) return <div className="container" style={{ padding: 40, textAlign: "center" }}>Chargement...</div>;
+  if (!item) return <div className="container" style={{ padding: 40, textAlign: "center" }}>Produit introuvable.</div>;
 
-  // --- LOGIQUE CLOUDINARY AMÉLIORÉE ---
+  // Ton Cloud Name est 'dvgdc8bq0'
   const CLOUD_NAME = "dvgdc8bq0";
-  
-  // 1. On retire l'extension .stl (ou autre) du nom de fichier via Regex
-  const cleanPublicId = item.filename.replace(/\.[^/.]+$/, "");
-  
-  // 2. On construit l'URL avec un cache-buster (timestamp) pour forcer la mise à jour
-  const stlUrl = `https://res.cloudinary.com/${CLOUD_NAME}/raw/upload/v1/${encodeURIComponent(cleanPublicId)}?t=${Date.now()}`;
+  // On construit l'URL directe vers ton Cloudinary
+  const stlUrl = `https://res.cloudinary.com/${CLOUD_NAME}/raw/upload/v1/${encodeURIComponent(item.filename)}`;
 
   return (
-    <div className="container">
-      {/* On utilise .detail-grid pour la structure responsive */}
-      <div className="detail-grid">
+    <section className="container" style={{ marginTop: "40px" }}>
+      <div className="detail-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px" }}>
         
-        {/* VISUALISEUR 3D - Dans une .card spécialisée */}
-        <div className="card detail-card" style={{ padding: 0, background: "#000" }}>
+        {/* VISUALISEUR 3D */}
+        <div className="card" style={{ padding: 0, overflow: "hidden", background: "#0b0e14", borderRadius: "12px", height: "500px" }}>
           <STLViewer src={stlUrl} />
         </div>
 
         {/* INFORMATIONS PRODUIT */}
-        <div className="card" style={{ display: "flex", flexDirection: "column" }}>
-          <h1>{item.title}</h1>
-          
-          <div style={{ marginBottom: "20px", display: "flex", gap: "10px", flexWrap: "wrap" }}>
-              <span className="nav-item active" style={{ fontSize: "12px", padding: "4px 10px" }}>
-                📂 {item.category}
-              </span>
-              <span style={{ color: "var(--muted)", fontSize: "14px" }}>
-                ⬇️ {item.downloads} téléchargements
-              </span>
+        <div className="card" style={{ padding: "30px", display: "flex", flexDirection: "column" }}>
+          <h1 style={{ marginTop: 0 }}>{item.title}</h1>
+          <div style={{ marginBottom: 20, fontSize: 14, color: "var(--text-muted)" }}>
+             📂 {item.category} • ⬇️ {item.downloads} téléchargements
           </div>
-
-          <p style={{ color: "var(--muted)", flexGrow: 1, lineHeight: "1.6" }}>
-            {item.description || "Aucune description fournie pour ce modèle 3D."}
+          <p style={{ color: "var(--text-muted)", flexGrow: 1 }}>
+            {item.description || "Description indisponible."}
           </p>
           
-          <div style={{ marginTop: "30px", borderTop: "1px solid rgba(255,255,255,0.08)", paddingTop: "25px" }}>
-            <div className="row" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <span style={{ fontSize: "32px", fontWeight: "900", color: "var(--primary)" }}>
+          <div style={{ marginTop: "auto", borderTop: "1px solid var(--border)", paddingTop: "20px" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <span style={{ fontSize: "28px", fontWeight: "bold", color: "var(--primary)" }}>
                 {item.price.toFixed(2)} €
               </span>
-              
-              <button 
-                className={`btn ${added ? "" : "primary"}`} 
-                onClick={onAdd} 
-                disabled={added}
-                style={{ minWidth: "180px" }}
-              >
+              <button className={`btn ${added ? "" : "primary"}`} onClick={onAdd} disabled={added}>
                 {added ? "Dans le panier ✅" : "Ajouter au panier 🛒"}
               </button>
             </div>
           </div>
         </div>
       </div>
-    </div>
+    </section>
   );
 }
