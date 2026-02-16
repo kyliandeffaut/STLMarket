@@ -5,22 +5,18 @@ import { useNavigate } from "react-router-dom";
 
 export default function Profile() {
   const [orders, setOrders] = useState<any[]>([]);
-  const [prints, setPrints] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const { addItem } = useCart();
   const navigate = useNavigate();
 
   const load = async () => {
     setLoading(true);
     try {
-      const [ordersRes, printsRes] = await Promise.all([
-        api.get("/api/orders/my"),
-        api.get("/api/print/my")
-      ]);
-      setOrders(ordersRes.data.orders || []); 
-      setPrints(Array.isArray(printsRes.data) ? printsRes.data : []);
+      // On charge uniquement les commandes (l'historique des impressions est dans /print)
+      const res = await api.get("/api/orders/my");
+      setOrders(res.data.orders || []);
     } catch (e) {
       console.error("Erreur chargement profil", e);
+      // Si non connecté, on redirige
       if ((e as any).response?.status === 401) navigate("/login");
     } finally {
       setLoading(false);
@@ -29,86 +25,118 @@ export default function Profile() {
 
   useEffect(() => { load(); }, []);
 
-  // Fonction de téléchargement
-  const downloadFile = async (fileId: string) => {
+  // ✅ Fonction de téléchargement corrigée
+  const downloadFile = async (fileId: string, filename: string) => {
     try {
       const response = await api.get(`/api/files/download/${fileId}`);
       
       if (response.data.downloadUrl) {
-        // Déclenche le téléchargement
         const link = document.createElement('a');
         link.href = response.data.downloadUrl;
-        link.setAttribute('target', '_blank'); 
+        link.setAttribute('download', filename || 'fichier.stl'); // Nom par défaut
+        link.setAttribute('target', '_blank');
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
       } else {
-        throw new Error("URL introuvable");
+        alert("Lien de téléchargement introuvable.");
       }
     } catch (error) {
-      alert("Erreur de téléchargement. Vérifiez vos accès.");
+      console.error(error);
+      alert("Erreur lors du téléchargement. Vérifiez que vous avez bien acheté ce fichier.");
     }
-  };
-
-  const removeOrder = async (id: string) => {
-    if(!window.confirm("Supprimer cette commande ?")) return;
-    try {
-        await api.delete(`/api/orders/${id}`);
-        await load(); 
-    } catch (e) {
-        alert("Erreur lors de la suppression");
-    }
-  };
-
-  const addPrintQuoteToCart = (r: any) => {
-    if (r.status !== "quoted" || r.quotePrice == null) return;
-    addItem({
-        _id: `print_${r._id}`, 
-        kind: "print",
-        title: `Impression 3D: ${r.originalName}`,
-        price: r.quotePrice,
-        category: "Impression 3D",
-        filename: r.storedName,
-      }, 1 
-    );
-    alert("Ajouté au panier ✅");
   };
 
   return (
-    <div className="container" style={{ padding: "40px 20px" }}>
-      <div className="card" style={{ padding: 24 }}>
-        <h1>Mon espace</h1>
-        {loading ? <p>Chargement...</p> : (
-            <>
-                <div className="card" style={{ padding: 16, marginTop: 24, border: "1px solid var(--border)" }}>
-                <h2>📦 Historique d'achats</h2>
-                {orders.length === 0 ? <p>Aucun achat.</p> : (
-                    <div style={{ display: "grid", gap: 16 }}>
-                    {orders.map((o) => (
-                        <div key={o._id} className="card" style={{ padding: 16, background: "rgba(255,255,255,0.02)" }}>
-                        <div style={{ display: "flex", justifyContent: "space-between" }}>
-                            <div>
-                                <div style={{ fontWeight: 800 }}>Commande du {new Date(o.createdAt).toLocaleDateString()}</div>
-                                <div style={{ opacity: 0.8, fontSize: 14 }}>Total: {o.totalPrice.toFixed(2)} €</div>
-                            </div>
-                            <button className="btn" style={{color: "var(--danger)"}} onClick={() => removeOrder(o._id)}>✕</button>
-                        </div>
-                        <div style={{ marginTop: 12, borderTop: "1px solid rgba(255,255,255,0.1)" }}>
-                            {o.items.map((it: any, idx: number) => (
-                            <div key={idx} style={{ display: "flex", justifyContent: "space-between", marginTop: 8 }}>
-                                <span>• {it.title}</span>
-                                {it.kind === 'file' && it.fileId && (
-                                    <button className="btn primary" onClick={() => downloadFile(it.fileId)}>📥 Télécharger</button>
-                                )}
-                            </div>
-                            ))}
-                        </div>
-                        </div>
-                    ))}
-                    </div>
-                )}
+    <div className="container">
+      {/* ✅ PANNEAU STYLE CULTS */}
+      <div className="main-content-panel">
+        <h1 style={{ marginTop: 0, marginBottom: "30px" }}>Mon Espace Personnel 👤</h1>
+
+        {loading ? (
+          <p style={{ textAlign: "center", padding: "40px", color: "var(--muted)" }}>Chargement de vos données...</p>
+        ) : (
+          <div>
+            
+            {/* SECTION HISTORIQUE ACHATS */}
+            <div>
+              <h2 style={{ fontSize: "1.4rem", marginBottom: "20px", color: "var(--accent)" }}>📦 Mes Commandes</h2>
+              
+              {orders.length === 0 ? (
+                <div style={{ padding: "30px", textAlign: "center", border: "1px dashed rgba(255,255,255,0.2)", borderRadius: "12px" }}>
+                  <p style={{ color: "var(--muted)" }}>Vous n'avez pas encore passé de commande.</p>
+                  <button className="btn primary" onClick={() => navigate("/catalogue")} style={{ marginTop: "10px" }}>
+                    Voir le catalogue
+                  </button>
                 </div>
-            </>
+              ) : (
+                <div style={{ display: "grid", gap: "20px" }}>
+                  {orders.map((o) => (
+                    <div key={o._id} style={{ 
+                      padding: "20px", 
+                      background: "rgba(255,255,255,0.03)", 
+                      borderRadius: "16px", 
+                      border: "1px solid rgba(255,255,255,0.08)" 
+                    }}>
+                      
+                      {/* En-tête de la commande */}
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "15px", borderBottom: "1px solid rgba(255,255,255,0.05)", paddingBottom: "10px" }}>
+                        <div>
+                          <div style={{ fontWeight: 800, fontSize: "1.1rem" }}>Commande #{o._id.slice(-6).toUpperCase()}</div>
+                          <div style={{ fontSize: "13px", color: "var(--muted)" }}>
+                            Du {new Date(o.createdAt).toLocaleDateString()} à {new Date(o.createdAt).toLocaleTimeString()}
+                          </div>
+                        </div>
+                        <div style={{ textAlign: "right" }}>
+                          <span style={{ fontSize: "18px", fontWeight: "900", color: "#fff" }}>{o.totalPrice.toFixed(2)} €</span>
+                        </div>
+                      </div>
+
+                      {/* Liste des articles */}
+                      <div style={{ display: "grid", gap: "10px" }}>
+                        {o.items.map((it: any, idx: number) => (
+                          <div key={idx} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px", background: "rgba(0,0,0,0.2)", borderRadius: "8px" }}>
+                            
+                            <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                              {it.kind === 'file' ? (
+                                <span style={{ fontSize: "20px" }}>💾</span>
+                              ) : (
+                                <span style={{ fontSize: "20px" }}>🖨️</span>
+                              )}
+                              <div>
+                                <div style={{ fontWeight: "600" }}>{it.title}</div>
+                                <div style={{ fontSize: "12px", color: "var(--muted)" }}>{it.price.toFixed(2)} €</div>
+                              </div>
+                            </div>
+
+                            {/* BOUTON TÉLÉCHARGER (Seulement pour les fichiers) */}
+                            {it.kind === 'file' && it.fileId && (
+                              <button 
+                                className="btn" 
+                                style={{ padding: "6px 12px", fontSize: "13px", display: "flex", alignItems: "center", gap: "5px" }}
+                                onClick={() => downloadFile(it.fileId, it.filename)}
+                              >
+                                📥 Télécharger
+                              </button>
+                            )}
+                            
+                            {it.kind === 'print' && (
+                                <span style={{ fontSize: "12px", color: "var(--accent)", border: "1px solid var(--accent)", padding: "2px 6px", borderRadius: "4px" }}>
+                                    Service Impression
+                                </span>
+                            )}
+
+                          </div>
+                        ))}
+                      </div>
+
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+          </div>
         )}
       </div>
     </div>

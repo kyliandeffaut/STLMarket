@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { FilesAPI, FileDTO } from "../lib/api";
 import { Link } from "react-router-dom";
 import { useCart } from "../context/CartContext";
-import STLViewer from "../components/STLViewer"; 
+import STLViewer from "../components/STLViewer"; // ✅ Import du viewer
 
 export default function Catalogue() {
   const [items, setItems] = useState<FileDTO[]>([]);
@@ -29,56 +29,53 @@ export default function Catalogue() {
   };
 
   return (
-    <div className="container">
-      {/* ✅ AJOUT DU PANNEAU POUR LA LISIBILITÉ SUR FOND VIOLET */}
-      <div className="main-content-panel">
-        
-        {/* En-tête aligné */}
-        <div className="catalogue-header">
-          <h1 style={{ margin: 0 }}>Catalogue STL</h1>
-          <input 
-            className="search-input-fancy" 
-            placeholder="🔍 Rechercher..." 
-            value={q}
-            onChange={(e) => setQ(e.target.value)} 
-          />
-        </div>
+    <div className="container" style={{ paddingTop: '40px' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }}>
+        <h1 style={{ margin: 0 }}>Catalogue STL</h1>
+        <input 
+          className="search-input-fancy" 
+          placeholder="🔍 Rechercher..." 
+          value={q}
+          onChange={(e) => setQ(e.target.value)} 
+        />
+      </div>
 
-        <div className="catalogue-grid">
-          {filtered.map((f) => {
-            const stlUrl = `https://res.cloudinary.com/${CLOUD_NAME}/raw/upload/v1/${encodeURIComponent(f.filename)}`;
-            
-            return (
-              <article className="product-card" key={f._id}>
+      <div className="catalogue-grid">
+        {filtered.map((f) => {
+          // ✅ Construction de l'URL STL
+          const stlUrl = `https://res.cloudinary.com/${CLOUD_NAME}/raw/upload/v1/${encodeURIComponent(f.filename)}`;
+          
+          return (
+            <article className="product-card" key={f._id}>
+              
+              {/* ✅ ZONE VISUELLE : STL STATIQUE (Non interactif) */}
+              <Link 
+                to={`/product/${encodeURIComponent(f.title)}`} 
+                state={{ item: f }} 
+                className="card-preview"
+                style={{ display: "block", height: "220px", background: "#0b0e14", cursor: "pointer" }}
+              >
+                 {/* interactive={false} fige le modèle, autoRotate={false} empêche la rotation */}
+                 <STLViewer src={stlUrl} autoRotate={false} interactive={false} />
+              </Link>
+
+              <div className="card-content">
+                <h3 style={{ margin: 0 }}>{f.title}</h3>
+                <p style={{ color: "var(--muted)", fontSize: 13 }}>📂 {f.category}</p>
                 
-                {/* STL STATIQUE (Non interactif pour le catalogue) */}
-                <Link 
-                  to={`/product/${encodeURIComponent(f.title)}`} 
-                  state={{ item: f }} 
-                  className="card-preview"
-                  style={{ display: "block", height: "220px", background: "#0b0e14", cursor: "pointer" }}
-                >
-                   <STLViewer src={stlUrl} autoRotate={false} interactive={false} />
-                </Link>
-
-                <div className="card-content">
-                  <h3 style={{ margin: 0 }}>{f.title}</h3>
-                  <p style={{ color: "var(--muted)", fontSize: 13 }}>📂 {f.category}</p>
-                  
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 20 }}>
-                    <span style={{ fontWeight: 900, fontSize: 20, color: 'var(--accent)' }}>{f.price.toFixed(2)} €</span>
-                    <div style={{ display: "flex", gap: 8 }}>
-                      <button className="btn primary" onClick={() => onAdd(f)}>
-                        {addedId === f._id ? "Ajouté ✅" : "Ajouter"}
-                      </button>
-                      <Link className="btn" to={`/product/${encodeURIComponent(f.title)}`} state={{ item: f }}>Voir</Link>
-                    </div>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 20 }}>
+                  <span style={{ fontWeight: 900, fontSize: 20, color: 'var(--accent)' }}>{f.price.toFixed(2)} €</span>
+                  <div style={{ display: "flex", gap: 8 }}>
+                    <button className="btn primary" onClick={() => onAdd(f)}>
+                      {addedId === f._id ? "Ajouté ✅" : "Ajouter"}
+                    </button>
+                    <Link className="btn" to={`/product/${encodeURIComponent(f.title)}`} state={{ item: f }}>Voir</Link>
                   </div>
                 </div>
-              </article>
-            );
-          })}
-        </div>
+              </div>
+            </article>
+          );
+        })}
       </div>
     </div>
   );
