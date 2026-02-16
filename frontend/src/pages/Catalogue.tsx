@@ -10,40 +10,27 @@ export default function Catalogue() {
   const { addItem } = useCart();
 
   useEffect(() => {
-    (async () => {
-      const data = await FilesAPI.list();
-      setItems(data);
-    })().catch(console.error);
+    FilesAPI.list().then(setItems).catch(console.error);
   }, []);
 
   const filtered = useMemo(() => {
     const query = q.trim().toLowerCase();
-    if (!query) return items;
     return items.filter((f) => f.title.toLowerCase().includes(query));
   }, [items, q]);
 
   const onAdd = (f: FileDTO) => {
-    addItem({
-      _id: f._id,
-      kind: "file",
-      title: f.title,
-      price: f.price,
-      category: f.category,
-      filename: f.filename,
-    }, 1);
+    addItem({ ...f, kind: "file" }, 1);
     setAddedId(f._id);
     window.setTimeout(() => setAddedId(null), 900);
   };
 
   return (
-    <div className="container">
-      <h1>Catalogue STL</h1>
-      
-      {/* Barre de recherche "Pilule" */}
-      <div className="search-wrapper">
+    <div className="container" style={{paddingTop: '40px'}}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }}>
+        <h1 style={{margin: 0}}>Catalogue STL</h1>
         <input 
           className="search-input-fancy" 
-          placeholder="🔍 Rechercher un modèle..." 
+          placeholder="🔍 Rechercher..." 
           value={q}
           onChange={(e) => setQ(e.target.value)} 
         />
@@ -52,26 +39,18 @@ export default function Catalogue() {
       <div className="catalogue-grid">
         {filtered.map((f) => (
           <article className="product-card" key={f._id}>
-            {/* Zone visuelle */}
             <div className="card-preview">📦</div>
-
             <div className="card-content">
               <h3 style={{ margin: 0 }}>{f.title}</h3>
-              <div style={{ color: "var(--muted)", fontSize: 13, marginTop: 8 }}>
-                📂 {f.category} • ⬇️ {f.downloads} dl
-              </div>
-
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 25 }}>
-                <span className="price-text">{f.price.toFixed(2)} €</span>
-
-                <div style={{ display: "flex", gap: 10 }}>
+              <p style={{ color: "var(--muted)", fontSize: 13 }}>📂 {f.category}</p>
+              
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 20 }}>
+                <span style={{ fontWeight: 900, fontSize: 20, color: 'var(--accent)' }}>{f.price.toFixed(2)} €</span>
+                <div style={{ display: "flex", gap: 8 }}>
                   <button className="btn primary" onClick={() => onAdd(f)}>
                     {addedId === f._id ? "Ajouté ✅" : "Ajouter"}
                   </button>
-
-                  <Link className="btn" to={`/product/${encodeURIComponent(f.title)}`} state={{ item: f }}>
-                    Voir
-                  </Link>
+                  <Link className="btn" to={`/product/${encodeURIComponent(f.title)}`} state={{ item: f }}>Voir</Link>
                 </div>
               </div>
             </div>
