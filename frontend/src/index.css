@@ -270,3 +270,25 @@ body {
   flex-direction: column;
   min-height: 100vh;
 }
+
+/* --- PANNEAU DE CONTENU PRINCIPAL --- */
+.main-content-panel {
+  background: rgba(21, 24, 35, 0.96); /* Fond sombre très opaque pour la lisibilité */
+  backdrop-filter: blur(20px); /* Effet de flou pour lisser la grille derrière */
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.08); /* Bordure subtile */
+  border-radius: 24px; /* Gros coins arrondis */
+  padding: 40px; /* Espace à l'intérieur */
+  margin-top: 40px; /* Espace avec la barre de navigation */
+  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5); /* Belle ombre portée */
+}
+
+/* Petit ajustement pour que le titre et la recherche soient alignés */
+.catalogue-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  flex-wrap: wrap;
+  gap: 20px;
+}
