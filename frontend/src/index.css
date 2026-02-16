@@ -1,131 +1,83 @@
-/* --- VARIABLES DE COULEURS --- */
-:root {
-  --bg: #0b0d11;
-  --panel: #151823;
-  --text: #f0f2f5;
-  --muted: #94a3b8;
-  --primary: #6366f1; /* Indigo vibrant */
-  --accent: #22d3ee;  /* Cyan */
-  --vibrant-gradient: linear-gradient(135deg, #6366f1 0%, #a855f7 50%, #ec4899 100%);
-  --radius: 16px;
+/* --- STRUCTURE NAVBAR --- */
+.navbar {
+  background: rgba(15, 17, 26, 0.8);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px); /* Pour Safari */
+  height: 70px;
+  display: flex;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-body {
-  margin: 0;
-  background-color: var(--bg);
-  /* Effet de lueur en arrière-plan */
-  background-image: 
-    radial-gradient(circle at 0% 0%, rgba(99, 102, 241, 0.12) 0, transparent 40%),
-    radial-gradient(circle at 100% 100%, rgba(34, 211, 238, 0.08) 0, transparent 40%);
-  color: var(--text);
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
-}
-
-.container {
-  max-width: 1100px;
+.navbar-container {
+  width: 100%;
+  max-width: 1200px;
   margin: 0 auto;
-  padding: 40px 20px;
+  padding: 0 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
-/* --- TITRE CATALOGUE (DÉGRADÉ) --- */
-h1 {
-  font-size: 2.5rem;
+/* --- LOGO VIBRANT --- */
+.nav-logo {
+  font-size: 1.5rem;
   font-weight: 900;
-  background: var(--vibrant-gradient);
+  background: linear-gradient(90deg, #6366f1, #22d3ee);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
-  margin-bottom: 30px;
-}
-
-/* --- BARRE DE RECHERCHE "PILULE" --- */
-.search-wrapper {
-  margin-bottom: 40px;
-}
-
-.search-input-fancy {
-  width: 100%;
-  max-width: 450px;
-  padding: 14px 25px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 2px solid rgba(255, 255, 255, 0.1);
-  border-radius: 50px;
-  color: white;
-  font-size: 16px;
-  outline: none;
-  transition: all 0.3s ease;
-}
-
-.search-input-fancy:focus {
-  border-color: var(--primary);
-  box-shadow: 0 0 15px rgba(99, 102, 241, 0.3);
-  background: rgba(255, 255, 255, 0.08);
-}
-
-/* --- CARTES PRODUITS (GRILLE) --- */
-.catalogue-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 25px;
-}
-
-.product-card {
-  background: var(--panel);
-  border-radius: var(--radius);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  overflow: hidden;
-  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  display: flex;
-  flex-direction: column;
-}
-
-.product-card:hover {
-  transform: translateY(-10px);
-  border-color: var(--primary);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
-}
-
-.card-preview {
-  height: 180px;
-  background: linear-gradient(45deg, #1e253a, #2d3550);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 40px;
-}
-
-.card-content {
-  padding: 20px;
-}
-
-/* --- BOUTONS --- */
-.btn {
-  padding: 10px 20px;
-  border-radius: 12px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: 0.2s;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  background: #1e253a;
-  color: white;
   text-decoration: none;
-  display: inline-flex;
+}
+
+/* --- ALIGNEMENT DES LIENS --- */
+.nav-links {
+  display: flex;
   align-items: center;
+  flex: 1;
+  justify-content: space-between;
+  margin-left: 40px;
 }
 
-.btn.primary {
-  background: var(--vibrant-gradient);
-  border: none;
-  box-shadow: 0 4px 15px rgba(168, 85, 247, 0.4);
+.nav-main { display: flex; gap: 20px; }
+.nav-auth { display: flex; gap: 15px; align-items: center; }
+
+.nav-item {
+  color: #94a3b8;
+  text-decoration: none;
+  font-weight: 600;
+  transition: 0.3s;
 }
 
-.btn.primary:hover {
-  filter: brightness(1.2);
-  transform: scale(1.05);
+.nav-item.active, .nav-item:hover {
+  color: #fff;
 }
 
-.price-text {
-  font-size: 22px;
-  font-weight: 900;
-  color: var(--accent);
+/* --- BOUTONS COLORÉS --- */
+.btn-register {
+  background: linear-gradient(135deg, #6366f1, #ec4899);
+  color: white;
+  padding: 8px 18px;
+  border-radius: 10px;
+  text-decoration: none;
+  font-weight: 700;
+  box-shadow: 0 4px 15px rgba(236, 72, 153, 0.3);
+}
+
+.btn-login {
+  color: #fff;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.btn-logout {
+  background: rgba(255, 80, 80, 0.1);
+  color: #ff6b6b;
+  border: 1px solid rgba(255, 80, 80, 0.2);
+  padding: 6px 12px;
+  border-radius: 8px;
+  cursor: pointer;
 }
