@@ -20,10 +20,10 @@ body {
   
   /* Une grille Cyan bien marquée */
   background-image: 
-    linear-gradient(rgba(34, 211, 238, 0.1) 2px, transparent 2px),
-    linear-gradient(90deg, rgba(34, 211, 238, 0.1) 2px, transparent 2px),
-    linear-gradient(rgba(34, 211, 238, 0.05) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(34, 211, 238, 0.05) 1px, transparent 1px);
+    linear-gradient(rgba(173, 34, 238, 0.1) 2px, transparent 2px),
+    linear-gradient(90deg, rgba(173, 34, 238, 0.1) 2px, transparent 2px),
+    linear-gradient(rgba(173, 34, 238, 0.1) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(173, 34, 238, 0.1) 1px, transparent 1px);
     
   /* Deux tailles de carreaux : des gros et des petits */
   background-size: 100px 100px, 100px 100px, 20px 20px, 20px 20px;
