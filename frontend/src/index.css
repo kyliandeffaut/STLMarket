@@ -1,137 +1,199 @@
-/* --- VARIABLES DE DESIGN --- */
 :root {
-  --bg-dark: #0f172a;
-  --card-bg: rgba(30, 41, 59, 0.7);
-  --primary: #6366f1; /* Indigo vibrant */
-  --primary-hover: #818cf8;
-  --text-main: #f8fafc;
-  --text-muted: #94a3b8;
-  --border: rgba(255, 255, 255, 0.1);
-  --danger: #ef4444;
-  --success: #22c55e;
+  --bg: #0f1115;
+  --panel: #151823;
+  --text: #e8e8f0;
+  --muted: #9aa2b1;
+  --primary: #5aa9ff;
+  --accent: #6de39b;
+  --danger: #ff6b6b;
+  --radius: 14px;
+  --nav-height: 64px;
 }
 
-/* --- RESET & BASE --- */
+* { box-sizing: border-box; }
+html, body, #root { height: 100%; }
+
 body {
   margin: 0;
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
-  background-color: var(--bg-dark);
-  background-image: 
-    radial-gradient(circle at 0% 0%, rgba(99, 102, 241, 0.15) 0, transparent 50%),
-    radial-gradient(circle at 100% 100%, rgba(99, 102, 241, 0.1) 0, transparent 50%);
-  color: var(--text-main);
-  min-height: 100vh;
+  background: linear-gradient(180deg, #0c0e13, #0f1115);
+  color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, sans-serif;
+  overflow-x: hidden; /* Empêche le scroll horizontal sur mobile */
 }
 
-/* --- CONTENEUR PRINCIPAL --- */
+a { color: var(--text); text-decoration: none; transition: 0.2s; }
+a:hover { color: var(--primary); }
+
+/* --- CONTENEUR RESPONSIVE --- */
 .container {
   max-width: 1100px;
   margin: 0 auto;
-  padding: 40px 20px;
+  padding: 20px 16px;
+  width: 100%;
 }
 
-/* --- CARTES (Effet de Verre) --- */
 .card {
-  background: var(--card-bg);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  padding: 24px;
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  background: var(--panel);
+  border-radius: var(--radius);
+  padding: 16px;
+  box-shadow: 0 8px 24px rgba(0,0,0,.35);
+  border: 1px solid rgba(255,255,255,.06);
 }
 
-.card:hover {
-  border-color: rgba(99, 102, 241, 0.4);
+/* --- GRILLES RESPONSIVE (Mobile First) --- */
+.grid {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: 1fr; /* 1 colonne par défaut (Mobile) */
 }
 
-/* --- BOUTONS --- */
+/* Tablette et + : 2 colonnes */
+@media (min-width: 640px) {
+  .grid.cols-2, .grid.cols-3 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* PC et + : 3 colonnes */
+@media (min-width: 1024px) {
+  .grid.cols-3 {
+    grid-template-columns: repeat(3, 1fr); /* On passe à 3 seulement sur grand écran */
+  }
+}
+
+/* --- ELEMENTS UI --- */
 .btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 10px 20px;
-  border-radius: 8px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  border: none;
   gap: 8px;
-  font-size: 14px;
+  border: 1px solid rgba(255,255,255,.12);
+  background: #1b2030;
+  color: var(--text);
+  padding: 10px 14px;
+  border-radius: 12px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: 0.2s;
+}
+.btn:hover { filter: brightness(1.2); }
+.btn.primary { background: var(--primary); color: #0a0f1a; border: none; }
+.btn.ghost { background: transparent; border: none; }
+
+.input, .select, .file {
+  width: 100%;
+  padding: 12px; /* Un peu plus gros pour le tactile */
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,.12);
+  background: #111525;
+  color: var(--text);
+  font-size: 16px; /* Évite le zoom auto sur iPhone */
 }
 
-.btn.primary {
-  background: var(--primary);
-  color: white;
-  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
-}
+.label { display:block; margin: 8px 0 6px; color: var(--muted); font-size: 14px; }
+.row { display:flex; gap:12px; align-items:center; flex-wrap: wrap; }
+.spacer { flex-grow: 1; }
 
-.btn.primary:hover {
-  background: var(--primary-hover);
-  transform: translateY(-2px);
-  box-shadow: 0 6px 15px rgba(99, 102, 241, 0.4);
-}
-
-.btn:active {
-  transform: translateY(0);
-}
-
-/* --- GRILLE DE DETAIL PRODUIT --- */
+/* --- PAGE DÉTAIL PRODUIT --- */
 .detail-grid {
   display: grid;
-  grid-template-columns: 1.2fr 0.8fr;
-  gap: 30px;
-  align-items: start;
+  grid-template-columns: 1fr;
+  gap: 24px;
 }
 
-@media (max-width: 768px) {
+.detail-card {
+  position: relative;
+  overflow: hidden;
+  min-height: 300px; /* Taille min pour le viewer 3D sur mobile */
+}
+
+@media (min-width: 900px) {
   .detail-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1.5fr 1fr;
+    height: calc(100vh - 100px);
   }
 }
 
-/* --- TITRES --- */
-h1 {
-  font-size: 2.5rem;
-  font-weight: 800;
-  margin-bottom: 0.5rem;
-  background: linear-gradient(to right, #fff, #94a3b8);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+/* --- CSS SPÉCIFIQUE NAVBAR --- */
+.navbar {
+  background: var(--panel);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  height: var(--nav-height);
+  position: sticky;
+  top: 0;
+  z-index: 100;
 }
 
-h2 {
-  font-size: 1.5rem;
-  color: var(--primary);
-  margin-bottom: 20px;
+.navbar-container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 16px;
+  height: 100%;
   display: flex;
   align-items: center;
-  gap: 10px;
-}
-
-/* --- HISTORIQUE DE COMMANDES --- */
-.order-item {
-  background: rgba(255, 255, 255, 0.03);
-  border-radius: 12px;
-  padding: 20px;
-  margin-bottom: 15px;
-  border-left: 4px solid var(--primary);
-}
-
-.order-header {
-  display: flex;
   justify-content: space-between;
+}
+
+.nav-logo {
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: var(--text);
+  display: flex;
   align-items: center;
-  margin-bottom: 15px;
+  gap: 8px;
 }
 
-/* --- ANIMATION DE CHARGEMENT --- */
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+/* Menu Burger (Caché sur PC) */
+.mobile-menu-btn {
+  display: none; 
+  background: transparent;
+  border: none;
+  color: var(--text);
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 4px;
 }
 
-.container {
-  animation: fadeIn 0.5s ease-out;
+/* Liens (Desktop) */
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+/* --- MEDIA QUERY NAVBAR (MOBILE) --- */
+@media (max-width: 768px) {
+  .mobile-menu-btn {
+    display: block; /* On affiche le bouton burger */
+  }
+
+  .nav-links {
+    position: fixed;
+    top: var(--nav-height);
+    left: 0;
+    right: 0;
+    background: var(--panel);
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 20px;
+    gap: 20px;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    
+    /* Animation d'ouverture */
+    transform: translateY(-150%);
+    transition: transform 0.3s ease-in-out;
+    z-index: 99;
+  }
+
+  .nav-links.open {
+    transform: translateY(0);
+  }
+
+  .nav-links a, .nav-links button {
+    width: 100%;
+    text-align: left;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.03);
+  }
 }
