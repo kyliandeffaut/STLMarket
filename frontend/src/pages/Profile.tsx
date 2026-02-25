@@ -1,5 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react"; // ✅ Ajout de useContext
 import { useCart } from "../context/CartContext";
+import { AuthContext } from "../context/AuthContext"; // ✅ Ajout du AuthContext
 import api from "../lib/api";
 import { useNavigate } from "react-router-dom";
 
@@ -7,6 +8,9 @@ export default function Profile() {
   const [orders, setOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  
+  // ✅ On récupère le statut Admin pour afficher le bouton secret
+  const { isAdmin } = useContext(AuthContext);
 
   const load = async () => {
     setLoading(true);
@@ -25,7 +29,18 @@ export default function Profile() {
 
   useEffect(() => { load(); }, []);
 
-  // ✅ Fonction de téléchargement corrigée
+  // ✅ FONCTION DE SUPPRESSION (Seulement pour toi)
+  const removeOrder = async (id: string) => {
+    if (!window.confirm("🛠️ MODE ADMIN : Supprimer définitivement cette commande de la base de données ?")) return;
+    try {
+      await api.delete(`/api/orders/${id}`);
+      await load(); // On recharge la liste après suppression
+    } catch (e) {
+      alert("Erreur lors de la suppression. Vérifie ta route d'API.");
+    }
+  };
+
+  // Fonction de téléchargement corrigée
   const downloadFile = async (fileId: string, filename: string) => {
     try {
       const response = await api.get(`/api/files/download/${fileId}`);
@@ -49,7 +64,7 @@ export default function Profile() {
 
   return (
     <div className="container">
-      {/* ✅ PANNEAU STYLE CULTS */}
+      {/* PANNEAU STYLE CULTS */}
       <div className="main-content-panel">
         <h1 style={{ marginTop: 0, marginBottom: "30px" }}>Mon Espace Personnel 👤</h1>
 
@@ -80,15 +95,28 @@ export default function Profile() {
                     }}>
                       
                       {/* En-tête de la commande */}
-                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "15px", borderBottom: "1px solid rgba(255,255,255,0.05)", paddingBottom: "10px" }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "15px", borderBottom: "1px solid rgba(255,255,255,0.05)", paddingBottom: "10px", flexWrap: "wrap", gap: "10px" }}>
                         <div>
                           <div style={{ fontWeight: 800, fontSize: "1.1rem" }}>Commande #{o._id.slice(-6).toUpperCase()}</div>
                           <div style={{ fontSize: "13px", color: "var(--muted)" }}>
                             Du {new Date(o.createdAt).toLocaleDateString()} à {new Date(o.createdAt).toLocaleTimeString()}
                           </div>
                         </div>
-                        <div style={{ textAlign: "right" }}>
+                        
+                        {/* ✅ AFFICHAGE DU PRIX ET DU BOUTON ADMIN */}
+                        <div style={{ display: "flex", alignItems: "center", gap: "15px" }}>
                           <span style={{ fontSize: "18px", fontWeight: "900", color: "#fff" }}>{o.totalPrice.toFixed(2)} €</span>
+                          
+                          {isAdmin && (
+                            <button 
+                              className="btn" 
+                              style={{ padding: "5px 10px", color: "#ff6b6b", background: "rgba(255, 107, 107, 0.1)", border: "1px dashed rgba(255, 107, 107, 0.4)" }}
+                              onClick={() => removeOrder(o._id)}
+                              title="Mode Admin : Supprimer de la BDD"
+                            >
+                              ✕ Test
+                            </button>
+                          )}
                         </div>
                       </div>
 
