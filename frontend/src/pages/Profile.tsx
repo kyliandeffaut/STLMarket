@@ -114,7 +114,7 @@ export default function Profile() {
                               onClick={() => removeOrder(o._id)}
                               title="Mode Admin : Supprimer de la BDD"
                             >
-                              ✕ Test
+                              ✕
                             </button>
                           )}
                         </div>
