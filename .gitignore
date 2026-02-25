@@ -46,3 +46,5 @@ backend/.DS_Store
 
 backend/public/print_requests/
 backend/public/uploads/
+
+NoSQLMap/
