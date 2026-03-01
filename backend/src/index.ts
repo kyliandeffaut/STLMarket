@@ -4,6 +4,7 @@ import path from "node:path";
 import fs from "node:fs";
 import mongoose from "mongoose";
 import "dotenv/config"; 
+import mongoSanitize from "express-mongo-sanitize"; // SÉCURITÉ 1 : Import du bouclier NoSQL
 
 // --- Imports des routes ---
 import authRoutes from "./routes/authRoutes";
@@ -13,6 +14,9 @@ import printRoutes from "./routes/printRoutes";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+// SÉCURITÉ 2 : Masque la technologie utilisée (Information Disclosure / WhatWeb)
+app.disable('x-powered-by');
 
 // ==========================================
 // 1. BASE DE DONNÉES
@@ -59,6 +63,9 @@ app.use(cors(corsOptions));
 app.options(/(.*)/, cors(corsOptions));
 
 app.use(express.json());
+
+// ✅ SÉCURITÉ 3 : Nettoie toutes les requêtes (body, query, params) des caractères MongoDB dangereux ($ et .)
+app.use(mongoSanitize());
 
 // ==========================================
 // 3. FICHIERS STATIQUES
