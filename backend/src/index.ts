@@ -65,7 +65,7 @@ app.options(/(.*)/, cors(corsOptions));
 app.use(express.json());
 
 // ✅ SÉCURITÉ 3 : Nettoie toutes les requêtes (body, query, params) des caractères MongoDB dangereux ($ et .)
-app.use(mongoSanitize());
+//app.use(mongoSanitize());
 
 // ==========================================
 // 3. FICHIERS STATIQUES
