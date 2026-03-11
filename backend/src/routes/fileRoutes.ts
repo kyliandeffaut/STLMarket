@@ -80,7 +80,7 @@ r.get("/download/:fileId", requireAuth, async (req: any, res) => {
 
     const downloadUrl = cloudinary.url(file.filename, {
       resource_type: 'raw',
-      flags: `attachment:${file.title.replace(/\s+/g, '_')}.stl`,
+      flags: 'attachment',
       sign_url: true
     });
 
