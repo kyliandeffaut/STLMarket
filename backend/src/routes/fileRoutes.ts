@@ -21,7 +21,8 @@ const storage = new CloudinaryStorage({
   params: async (req: any, file: any) => {
     return {
       folder: 'stl_market',
-      resource_type: 'raw', 
+      resource_type: 'raw',
+      format: 'stl',
       public_id: `${file.originalname.split('.')[0]}_${Date.now()}.stl`,
     };
   },
