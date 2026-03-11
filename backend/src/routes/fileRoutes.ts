@@ -22,8 +22,7 @@ const storage = new CloudinaryStorage({
     return {
       folder: 'stl_market',
       resource_type: 'raw', 
-      // Le Public ID sur Cloudinary sera généré avec un timestamp pour éviter les conflits
-      public_id: `${file.originalname.split('.')[0]}_${Date.now()}`,
+      public_id: `${file.originalname.split('.')[0]}_${Date.now()}.stl`,
     };
   },
 });
@@ -49,8 +48,7 @@ r.post("/", requireAuth, upload.single("file"), async (req: any, res) => {
       category,
       price: parseFloat(price),
       description,
-      // Cela te permet de faire correspondre manuellement le Public ID dans Cloudinary
-      filename: title.replace(/\s+/g, '_'), 
+      filename: req.file.filename, 
       ownerId: req.auth.id
     });
 
@@ -80,11 +78,9 @@ r.get("/download/:fileId", requireAuth, async (req: any, res) => {
       return res.status(403).json({ message: "Achat requis" });
     }
 
-    // Génération de l'URL sécurisée vers Cloudinary
     const downloadUrl = cloudinary.url(file.filename, {
       resource_type: 'raw',
       flags: 'attachment',
-      format: 'stl', // Force l'extension .stl au téléchargement
       sign_url: true
     });
 
