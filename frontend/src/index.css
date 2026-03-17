@@ -74,7 +74,7 @@ body {
 .nav-logo {
   font-size: 1.5rem;
   font-weight: 900;
-  color: white;
+  color: rgba(173, 34, 238, 0.35);
   text-decoration: none;
 }
 
@@ -92,7 +92,7 @@ body {
 }
 
 .nav-item:hover, .nav-item.active {
-  color: white;
+  color: rgba(173, 34, 238, 0.35);
   text-shadow: 0 0 12px rgba(99, 102, 241, 0.6);
   transform: translateY(-1px);
 }
