@@ -10,7 +10,7 @@ const activeClass = ({ isActive }: { isActive: boolean }) =>
   isActive ? "nav-item active" : "nav-item";
 
 export default function Navbar() {
-  const { token, isAdmin, logout } = useContext(AuthContext); // On n'a plus besoin de 'user' ici
+  const { token, isAdmin, logout } = useContext(AuthContext);
   const [isOpen, setIsOpen] = useState(false);
 
   // Fonction pour fermer le menu quand on clique sur un lien
