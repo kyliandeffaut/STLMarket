@@ -52,7 +52,7 @@ body {
 
 /* --- NAVBAR STYLISÉE --- */
 .navbar {
-  background: rgba(15, 17, 26, 0.9);
+  background: rgba(80, 160, 206, 0.9);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   height: var(--nav-height);
