@@ -2,6 +2,9 @@ import { useContext, useState } from "react";
 import { Link, NavLink } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 
+// ✅ 1. Import du nouveau logo (assure-toi qu'il est bien dans src/assets/)
+import logo from "../assets/logo.png"; 
+
 // Fonction pour gérer la classe active
 const activeClass = ({ isActive }: { isActive: boolean }) => 
   isActive ? "nav-item active" : "nav-item";
@@ -16,8 +19,19 @@ export default function Navbar() {
   return (
     <header className="navbar">
       <div className="container navbar-container">
-        <Link to="/" className="nav-logo" onClick={close}>
-          🧩 STLMarket
+        
+        {/* ✅ 2. REMPLACEMENT DU LOGO ICI */}
+        <Link 
+          to="/" 
+          className="nav-logo" 
+          onClick={close} 
+          style={{ display: 'flex', alignItems: 'center', gap: '10px' }}
+        >
+          <img 
+            src={logo} 
+            alt="Logo STLMarket" 
+            style={{ height: '40px', width: 'auto', borderRadius: '8px' }} 
+          />
         </Link>
 
         {/* BOUTON BURGER POUR MOBILE */}
