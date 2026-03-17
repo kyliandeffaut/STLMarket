@@ -52,7 +52,7 @@ body {
 
 /* --- NAVBAR STYLISÉE --- */
 .navbar {
-  background: rgba(47, 90, 116, 0.9);
+  background: rgba(61, 118, 153, 0.9);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   height: var(--nav-height);
@@ -74,10 +74,7 @@ body {
 .nav-logo {
   font-size: 1.5rem;
   font-weight: 900;
-  background: var(--vibrant-gradient);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+  color: white;
   text-decoration: none;
 }
 
@@ -86,7 +83,7 @@ body {
 /* Liens du menu avec effet néon */
 .nav-item {
   text-decoration: none;
-  color: #94a3b8;
+  color: #000000;
   font-weight: 700;
   font-size: 15px;
   transition: all 0.3s ease;

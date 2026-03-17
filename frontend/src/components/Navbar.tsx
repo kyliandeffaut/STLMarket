@@ -32,6 +32,7 @@ export default function Navbar() {
             alt="Logo STLMarket" 
             style={{ height: '40px', width: 'auto', borderRadius: '8px' }} 
           />
+          <span>STL Market</span>
         </Link>
 
         {/* BOUTON BURGER POUR MOBILE */}
