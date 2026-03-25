@@ -1,4 +1,3 @@
-// ✅ 1. Import du logo (comme pour la Navbar)
 import logo from "../assets/logo.png"; 
 
 export default function Footer() {
