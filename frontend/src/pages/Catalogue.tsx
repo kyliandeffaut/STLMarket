@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { FilesAPI, FileDTO } from "../lib/api";
 import { Link } from "react-router-dom";
 import { useCart } from "../context/CartContext";
-import STLViewer from "../components/STLViewer";
+import STLViewer from "../components/STLViewer"; // ✅ Import du viewer
 
 export default function Catalogue() {
   const [items, setItems] = useState<FileDTO[]>([]);
@@ -10,7 +10,7 @@ export default function Catalogue() {
   const [addedId, setAddedId] = useState<string | null>(null);
   const { addItem } = useCart();
   
-  // ✅ Ton Cloud Name Cloudinary
+  // Ton Cloud Name Cloudinary
   const CLOUD_NAME = "dvgdc8bq0";
 
   useEffect(() => {
@@ -42,17 +42,20 @@ export default function Catalogue() {
 
       <div className="catalogue-grid">
         {filtered.map((f) => {
-          // ✅ URL Corrigée : On pointe vers le dossier stl_market
-          const stlUrl = `https://res.cloudinary.com/${CLOUD_NAME}/raw/upload/stl_market/${f.filename}`;
+          // ✅ Construction de l'URL STL
+          const stlUrl = `https://res.cloudinary.com/${CLOUD_NAME}/raw/upload/v1/${encodeURIComponent(f.filename)}`;
           
           return (
             <article className="product-card" key={f._id}>
+              
+              {/* ✅ ZONE VISUELLE : STL STATIQUE (Non interactif) */}
               <Link 
                 to={`/product/${encodeURIComponent(f.title)}`} 
                 state={{ item: f }} 
                 className="card-preview"
                 style={{ display: "block", height: "220px", background: "#0b0e14", cursor: "pointer" }}
               >
+                 {/* interactive={false} fige le modèle, autoRotate={false} empêche la rotation */}
                  <STLViewer src={stlUrl} autoRotate={false} interactive={false} />
               </Link>
 
