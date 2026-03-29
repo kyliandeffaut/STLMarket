@@ -7,10 +7,15 @@ export default defineConfig({
   plugins: [react()],
   resolve: {
     alias: {
-      "@": path.resolve(__dirname, "./src"), // ✅ définit @ comme racine vers /src
-      "@pages": path.resolve(__dirname, "./src/pages"), // ✅ ajoute @pages
-      "@components": path.resolve(__dirname, "./src/components"), // optionnel mais utile
-      "@lib": path.resolve(__dirname, "./src/lib"), // pour ton api.ts
+      "@": path.resolve(__dirname, "./src"),
+      "@pages": path.resolve(__dirname, "./src/pages"),
+      "@components": path.resolve(__dirname, "./src/components"),
+      "@lib": path.resolve(__dirname, "./src/lib"),
     },
   },
+  build: {
+    outDir: 'dist',
+    assetsDir: 'assets',
+    emptyOutDir: true,
+  }
 });
