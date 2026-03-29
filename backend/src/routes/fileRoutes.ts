@@ -8,14 +8,12 @@ import { CloudinaryStorage } from "multer-storage-cloudinary";
 
 const r = Router();
 
-// Configuration Cloudinary (utilise tes variables Render)
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
   api_key: process.env.CLOUDINARY_API_KEY,
   api_secret: process.env.CLOUDINARY_API_SECRET
 });
 
-// Configuration du stockage Cloudinary
 const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: async (req: any, file: any) => {
@@ -23,22 +21,18 @@ const storage = new CloudinaryStorage({
       folder: 'stl_market',
       resource_type: 'raw',
       format: 'stl',
-      public_id: `${file.originalname.split('.')[0]}_${Date.now()}.stl`,
+      public_id: `${file.originalname.split('.')[0]}_${Date.now()}`,
     };
   },
 });
 
 const upload = multer({ storage: storage });
 
-// --- ROUTES ---
-
-// 1. Liste des fichiers
 r.get("/", async (_req, res) => {
   const files = await File.find().sort({ createdAt: -1 });
   res.json(files);
 });
 
-// 2. AJOUTER UN FICHIER (Route POST pour l'Admin)
 r.post("/", requireAuth, upload.single("file"), async (req: any, res) => {
   try {
     const { title, category, price, description } = req.body;
@@ -49,37 +43,29 @@ r.post("/", requireAuth, upload.single("file"), async (req: any, res) => {
       category,
       price: parseFloat(price),
       description,
-      filename: req.file.filename, 
+      // ✅ On extrait juste le nom final (ex: fichier_123.stl) pour MongoDB
+      filename: req.file.filename.split('/').pop(), 
       ownerId: req.auth.id
     });
 
     await newFile.save();
     res.status(201).json(newFile);
   } catch (error: any) {
-    if (error.code === 11000) {
-        return res.status(400).json({ error: "Ce titre existe déjà." });
-    }
+    if (error.code === 11000) return res.status(400).json({ error: "Ce titre existe déjà." });
     res.status(500).json({ error: "Erreur lors de la mise en vente" });
   }
 });
 
-// 3. TÉLÉCHARGEMENT (Génère le lien Cloudinary)
 r.get("/download/:fileId", requireAuth, async (req: any, res) => {
   try {
-    const fileId = req.params.fileId;
-    const userId = req.auth.id; 
-    const userRole = req.auth.role;
-
-    const file = await File.findById(fileId);
+    const file = await File.findById(req.params.fileId);
     if (!file) return res.status(404).json({ message: "Fichier introuvable" });
 
-    // Vérification de l'achat
-    const order = await Order.findOne({ userId, "items.fileId": fileId });
-    if (!order && userRole !== 'admin') {
-      return res.status(403).json({ message: "Achat requis" });
-    }
+    const order = await Order.findOne({ userId: req.auth.id, "items.fileId": req.params.fileId });
+    if (!order && req.auth.role !== 'admin') return res.status(403).json({ message: "Achat requis" });
 
-    const downloadUrl = cloudinary.url(file.filename, {
+    // ✅ On rajoute le dossier pour que Cloudinary trouve le fichier
+    const downloadUrl = cloudinary.url(`stl_market/${file.filename}`, {
       resource_type: 'raw',
       flags: 'attachment',
       sign_url: true
