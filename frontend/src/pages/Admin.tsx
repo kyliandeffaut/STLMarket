@@ -49,12 +49,10 @@ export default function Admin() {
 
   return (
     <div className="container">
-      {/* ✅ AJOUT DU PANNEAU GLOBAL (Fond sombre + flou) */}
       <div className="main-content-panel">
         
         <h1 style={{ marginBottom: "30px" }}>Panneau Administrateur 🛡️</h1>
 
-        {/* Onglets */}
         <div style={{ display: "flex", gap: 15, marginBottom: "40px" }}>
           <button className={`btn ${tab === "prints" ? "primary" : ""}`} onClick={() => setTab("prints")}>
             Gestion Impressions 🖨️
@@ -70,7 +68,6 @@ export default function Admin() {
             {requests.length === 0 ? <p style={{opacity: 0.7}}>Aucune demande en attente.</p> : (
               <div style={{ display: "grid", gap: "15px", marginTop: "20px" }}>
                 {requests.map(r => (
-                  // ✅ Carte allégée pour aller dans le panneau
                   <div key={r._id} style={{ 
                       padding: "20px", 
                       background: "rgba(255,255,255,0.05)", // Légèrement plus clair que le fond
@@ -85,7 +82,6 @@ export default function Admin() {
                     <div>
                       <div style={{ fontWeight: "bold", fontSize: "1.1rem" }}>{r.originalName}</div>
                       <div style={{ fontSize: "14px", color: "var(--muted)" }}>Client: {r.userId?.email}</div>
-                      {/* Lien de téléchargement (utile pour l'admin) */}
                       <a 
                         href={`https://stlmarket.onrender.com/print_requests/${r.storedName}`} 
                         target="_blank" 
@@ -112,7 +108,6 @@ export default function Admin() {
             )}
           </div>
         ) : (
-          // ✅ Formulaire centré et propre (plus de "auth-container" en double)
           <div style={{ maxWidth: "600px", margin: "0 auto" }}>
             <h2>Nouveau produit</h2>
             <form onSubmit={handleUploadCatalog} style={{ marginTop: "20px" }}>

@@ -47,14 +47,7 @@ export default function Navbar() {
 
           {/* LIEN ADMIN */}
           {isAdmin && (
-            <NavLink 
-              to="/admin" 
-              className={activeClass} 
-              onClick={close}
-              style={{ color: "var(--accent)", fontWeight: "800", textShadow: "0 0 10px rgba(34, 211, 238, 0.4)" }}
-            >
-              Admin 🛡️
-            </NavLink>
+            <NavLink to="/admin" className={activeClass} onClick={close}style={{ color: "var(--accent)", fontWeight: "800", textShadow: "0 0 10px rgba(34, 211, 238, 0.4)" }}>Admin</NavLink>
           )}
 
           <NavLink to="/profile" className={activeClass} onClick={close}>Mon espace</NavLink>
