@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { FilesAPI, FileDTO } from "../lib/api";
 import { Link } from "react-router-dom";
 import { useCart } from "../context/CartContext";
-import STLViewer from "../components/STLViewer";
+import STLViewer from "../components/STLViewer"; // ✅ Import du viewer
 
 export default function Catalogue() {
   const [items, setItems] = useState<FileDTO[]>([]);
@@ -10,8 +10,8 @@ export default function Catalogue() {
   const [addedId, setAddedId] = useState<string | null>(null);
   const { addItem } = useCart();
   
-  // ✅ On utilise l'URL de ton API Render pour les fichiers
-  const API_URL = "https://stlmarket.onrender.com";
+  // Ton Cloud Name Cloudinary
+  const CLOUD_NAME = "dvgdc8bq0";
 
   useEffect(() => {
     FilesAPI.list().then(setItems).catch(console.error);
@@ -41,44 +41,41 @@ export default function Catalogue() {
       </div>
 
       <div className="catalogue-grid">
-        {filtered.length === 0 ? (
-          <p style={{ color: "var(--muted)" }}>Aucun modèle trouvé.</p>
-        ) : (
-          filtered.map((f) => {
-            // ✅ CORRECTION : On pointe vers le dossier public de ton serveur
-            const stlUrl = `${API_URL}/files/${f.filename}`;
-            
-            return (
-              <article className="product-card" key={f._id}>
-                <Link 
-                  to={`/product/${encodeURIComponent(f.title)}`} 
-                  state={{ item: f }} 
-                  className="card-preview"
-                  style={{ display: "block", height: "220px", background: "#0b0e14", cursor: "pointer" }}
-                >
-                   <STLViewer src={stlUrl} autoRotate={false} interactive={false} />
-                </Link>
+        {filtered.map((f) => {
+          // ✅ Construction de l'URL STL
+          const stlUrl = `https://res.cloudinary.com/${CLOUD_NAME}/raw/upload/v1/${encodeURIComponent(f.filename)}`;
+          
+          return (
+            <article className="product-card" key={f._id}>
+              
+              {/* ✅ ZONE VISUELLE : STL STATIQUE (Non interactif) */}
+              <Link 
+                to={`/product/${encodeURIComponent(f.title)}`} 
+                state={{ item: f }} 
+                className="card-preview"
+                style={{ display: "block", height: "220px", background: "#0b0e14", cursor: "pointer" }}
+              >
+                 {/* interactive={false} fige le modèle, autoRotate={false} empêche la rotation */}
+                 <STLViewer src={stlUrl} autoRotate={false} interactive={false} />
+              </Link>
 
-                <div className="card-content">
-                  <h3 style={{ margin: 0 }}>{f.title}</h3>
-                  <p style={{ color: "var(--muted)", fontSize: 13 }}>📂 {f.category}</p>
-                  
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 20 }}>
-                    <span style={{ fontWeight: 900, fontSize: 20, color: 'var(--accent)' }}>
-                      {f.price ? f.price.toFixed(2) : "0.00"} €
-                    </span>
-                    <div style={{ display: "flex", gap: 8 }}>
-                      <button className="btn primary" onClick={() => onAdd(f)}>
-                        {addedId === f._id ? "Ajouté ✅" : "Ajouter"}
-                      </button>
-                      <Link className="btn" to={`/product/${encodeURIComponent(f.title)}`} state={{ item: f }}>Voir</Link>
-                    </div>
+              <div className="card-content">
+                <h3 style={{ margin: 0 }}>{f.title}</h3>
+                <p style={{ color: "var(--muted)", fontSize: 13 }}>📂 {f.category}</p>
+                
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 20 }}>
+                  <span style={{ fontWeight: 900, fontSize: 20, color: 'var(--accent)' }}>{f.price.toFixed(2)} €</span>
+                  <div style={{ display: "flex", gap: 8 }}>
+                    <button className="btn primary" onClick={() => onAdd(f)}>
+                      {addedId === f._id ? "Ajouté ✅" : "Ajouter"}
+                    </button>
+                    <Link className="btn" to={`/product/${encodeURIComponent(f.title)}`} state={{ item: f }}>Voir</Link>
                   </div>
                 </div>
-              </article>
-            );
-          })
-        )}
+              </div>
+            </article>
+          );
+        })}
       </div>
     </div>
   );
