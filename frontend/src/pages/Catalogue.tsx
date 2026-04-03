@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { FilesAPI, FileDTO } from "../lib/api";
 import { Link } from "react-router-dom";
 import { useCart } from "../context/CartContext";
-import STLViewer from "../components/STLViewer"; // ✅ Import du viewer
+import STLViewer from "../components/STLViewer"; //Import du viewer
 
 export default function Catalogue() {
   const [items, setItems] = useState<FileDTO[]>([]);
@@ -42,13 +42,13 @@ export default function Catalogue() {
 
       <div className="catalogue-grid">
         {filtered.map((f) => {
-          // ✅ Construction de l'URL STL
+          // Construction de l'URL STL
           const stlUrl = `https://res.cloudinary.com/${CLOUD_NAME}/raw/upload/v1/${encodeURIComponent(f.filename)}`;
           
           return (
             <article className="product-card" key={f._id}>
               
-              {/* ✅ ZONE VISUELLE : STL STATIQUE (Non interactif) */}
+              {/* ZONE VISUELLE : STL STATIQUE (Non interactif) */}
               <Link 
                 to={`/product/${encodeURIComponent(f.title)}`} 
                 state={{ item: f }} 
@@ -61,13 +61,13 @@ export default function Catalogue() {
 
               <div className="card-content">
                 <h3 style={{ margin: 0 }}>{f.title}</h3>
-                <p style={{ color: "var(--muted)", fontSize: 13 }}>📂 {f.category}</p>
+                <p style={{ color: "var(--muted)", fontSize: 13 }}>{f.category}</p>
                 
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 20 }}>
                   <span style={{ fontWeight: 900, fontSize: 20, color: 'var(--accent)' }}>{f.price.toFixed(2)} €</span>
                   <div style={{ display: "flex", gap: 8 }}>
                     <button className="btn primary" onClick={() => onAdd(f)}>
-                      {addedId === f._id ? "Ajouté ✅" : "Ajouter"}
+                      {addedId === f._id ? "Ajouté" : "Ajouter"}
                     </button>
                     <Link className="btn" to={`/product/${encodeURIComponent(f.title)}`} state={{ item: f }}>Voir</Link>
                   </div>

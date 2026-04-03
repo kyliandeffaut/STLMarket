@@ -34,10 +34,9 @@ const upload = multer({
 // 1. [USER] Envoyer une demande AVEC DESCRIPTION
 router.post("/request", requireAuth, upload.single("stl"), async (req: any, res: any) => {
   try {
-    // Si Multer a bloqué le fichier, req.file n'existe pas
     if (!req.file) return res.status(400).json({ error: "Fichier .stl invalide ou manquant" });
 
-    // Multer met les champs texte (comme description) dans req.body
+    // Multer met les champs texte dans req.body
     const { description } = req.body;
 
     const newRequest = await PrintRequest.create({

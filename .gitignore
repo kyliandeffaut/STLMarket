@@ -1,4 +1,4 @@
-# === Node.js / TypeScript ===
+# Node.js / TypeScript
 node_modules/
 dist/
 build/
@@ -7,20 +7,20 @@ out/
 *.tsbuildinfo
 coverage/
 
-# === Environnements (Sécurité) ===
+# Environnements (Sécurité)
 .env
 .env.local
 .env.production
 .env.development
 .env.test
 
-# === IDE / OS ===
+# IDE / OS
 .vscode/
 .idea/
 .DS_Store
 Thumbs.db
 
-# === Cache et dépendances ===
+# Cache et dépendances
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
@@ -29,18 +29,18 @@ pnpm-debug.log*
 tmp/
 temp/
 
-# === Frontend spécifique ===
+# Frontend spécifique
 frontend/node_modules/
 frontend/dist/
 frontend/.vite/
 frontend/.DS_Store
 
-# === Backend spécifique ===
+# Backend spécifique
 backend/node_modules/
 backend/dist/
 backend/.DS_Store
 
-# === UPLOADS / STOCKAGE (TRÈS IMPORTANT) ===
+# UPLOADS / STOCKAGE
 # On ignore les fichiers téléchargés par les utilisateurs
 # pour ne pas saturer GitHub et protéger les données.
 

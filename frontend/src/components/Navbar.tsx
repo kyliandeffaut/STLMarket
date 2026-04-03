@@ -2,7 +2,7 @@ import { useContext, useState } from "react";
 import { Link, NavLink } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 
-// ✅ 1. Import du nouveau logo (assure-toi qu'il est bien dans src/assets/)
+// 1. Import du nouveau logo
 import logo from "../assets/logo.png"; 
 
 // Fonction pour gérer la classe active
@@ -20,7 +20,7 @@ export default function Navbar() {
     <header className="navbar">
       <div className="container navbar-container">
         
-        {/* ✅ 2. REMPLACEMENT DU LOGO ICI */}
+        {/* 2. REMPLACEMENT DU LOGO */}
         <Link 
           to="/" 
           className="nav-logo" 

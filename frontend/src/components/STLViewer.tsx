@@ -6,7 +6,7 @@ import { STLLoader } from "three/examples/jsm/loaders/STLLoader.js";
 type Props = {
   src?: string;
   autoRotate?: boolean;
-  interactive?: boolean; // ✅ NOUVEAU : Option pour activer/désactiver l'interaction
+  interactive?: boolean;
 };
 
 export default function STLViewer({ src, autoRotate = true, interactive = true }: Props) {
@@ -48,7 +48,7 @@ export default function STLViewer({ src, autoRotate = true, interactive = true }
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
 
-    // ✅ LOGIQUE D'INTERACTION
+    // LOGIQUE D'INTERACTION
     if (interactive) {
       // Mode Page Produit : On active tout
       controls.enabled = true;

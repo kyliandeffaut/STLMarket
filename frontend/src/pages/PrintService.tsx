@@ -48,14 +48,13 @@ export default function PrintService() {
 
   return (
     <div className="container">
-      {/* ✅ ON EMBALLE TOUT DANS LE PANNEAU STYLE */}
       <div className="main-content-panel">
         
         <h1 style={{ marginTop: 0, marginBottom: "30px" }}>🖨️ Service d'Impression à la demande</h1>
         
         <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: "40px" }}>
           
-          {/* --- ZONE 1 : FORMULAIRE --- */}
+          {/* ZONE 1 : FORMULAIRE */}
           <div>
             <h2 style={{ fontSize: "1.2rem", marginBottom: "15px", color: "var(--accent)" }}>1. Nouvelle demande</h2>
             
@@ -100,7 +99,7 @@ export default function PrintService() {
             </div>
           </div>
 
-          {/* --- ZONE 2 : LISTE DES DEMANDES --- */}
+          {/* ZONE 2 : LISTE DES DEMANDES */}
           <div>
             <h2 style={{ fontSize: "1.2rem", marginBottom: "15px", color: "var(--accent)" }}>2. Suivi de mes demandes</h2>
             
@@ -142,7 +141,7 @@ export default function PrintService() {
                           <span style={{ fontSize: "20px", fontWeight: "900", color: "#fff" }}>{r.quotePrice} €</span>
                         </div>
                         <button className="btn primary" onClick={() => addToCart(r)}>
-                           Payer 🛒
+                           Payer
                         </button>
                       </div>
                     )}

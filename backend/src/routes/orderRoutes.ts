@@ -1,22 +1,20 @@
 import { Router } from "express";
-import { requireAuth } from "../middlewares/auth"; // Ton middleware
+import { requireAuth } from "../middlewares/auth";
 import Order from "../models/Order";
-import File from "../models/File"; // J'ai remis "File" (ton nom d'origine)
+import File from "../models/File";
 import PrintRequest from "../models/PrintRequest";
 
 const r = Router();
 
-// ==========================================
 // 1. CRÉER UNE COMMANDE (PAIEMENT)
-// ==========================================
 r.post("/", requireAuth, async (req: any, res: any) => {
   try {
     console.log("📥 Nouvelle commande reçue !");
 
-    // 1. Récupération de l'utilisateur (Compatible avec ta méthode req.auth)
+    // 1. Récupération de l'utilisateur
     const auth = req.auth || req.user;
     if (!auth || !auth.id) {
-      console.log("⛔ Utilisateur non identifié");
+      console.log("Utilisateur non identifié");
       return res.status(401).json({ error: "unauthorized" });
     }
 
@@ -90,7 +88,7 @@ r.post("/", requireAuth, async (req: any, res: any) => {
       status: "paid",
     });
 
-    // 4. Mise à jour des statuts (Optionnel mais recommandé)
+    // 4. Mise à jour des statuts
     try {
         // Incrémente les téléchargements pour les fichiers
         for (const item of finalItems.filter((i:any) => i.kind === "file")) {
@@ -101,21 +99,20 @@ r.post("/", requireAuth, async (req: any, res: any) => {
             await PrintRequest.findByIdAndUpdate(item.requestId, { status: "paid" });
         }
     } catch (updateErr) {
-        console.error("⚠️ Erreur mise à jour statuts (non bloquant):", updateErr);
+        console.error("Erreur mise à jour statuts (non bloquant):", updateErr);
     }
 
-    console.log("✅ Commande créée avec succès :", order._id);
+    console.log("Commande créée avec succès :", order._id);
     res.json({ ok: true, orderId: order._id.toString() });
 
   } catch (error) {
-    console.error("❌ CRASH BACKEND COMMANDE :", error);
+    console.error("CRASH BACKEND COMMANDE :", error);
     res.status(500).json({ error: "Erreur serveur interne (voir terminal)" });
   }
 });
 
-// ==========================================
+
 // 2. LISTER MES COMMANDES
-// ==========================================
 r.get("/my", requireAuth, async (req: any, res: any) => {
     try {
         const auth = req.auth || req.user;
@@ -126,14 +123,12 @@ r.get("/my", requireAuth, async (req: any, res: any) => {
     }
 });
 
-// ==========================================
-// 3. SUPPRIMER UNE COMMANDE (NOUVEAU)
-// ==========================================
+// 3. SUPPRIMER UNE COMMANDE
 r.delete("/:id", requireAuth, async (req: any, res: any) => {
   try {
     const auth = req.auth || req.user;
     
-    // On cherche et supprime la commande SEULEMENT si elle appartient à l'utilisateur
+    // On cherche et supprime la commande seulement si elle appartient à l'utilisateur
     const deleted = await Order.findOneAndDelete({ _id: req.params.id, userId: auth.id });
 
     if (!deleted) {

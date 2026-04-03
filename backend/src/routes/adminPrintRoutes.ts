@@ -1,4 +1,3 @@
-// backend/src/routes/adminPrintRoutes.ts
 import { Router } from "express";
 import PrintRequest from "../models/PrintRequest";
 import { requireAuth, requireAdmin } from "../middlewares/auth";
@@ -31,7 +30,7 @@ r.patch("/:id/quote", requireAuth, requireAdmin, async (req, res) => {
   res.json({ ok: true, request: doc });
 });
 
-// DELETE /api/admin/prints/:id  ✅ (Refuser = supprimer)
+// DELETE /api/admin/prints/:id  (Refuser = supprimer)
 r.delete("/:id", requireAuth, requireAdmin, async (req, res) => {
   const { id } = req.params;
   const deleted = await PrintRequest.findByIdAndDelete(id);

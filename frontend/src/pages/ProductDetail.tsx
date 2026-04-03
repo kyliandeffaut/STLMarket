@@ -64,13 +64,12 @@ export default function ProductDetail() {
       <div className="detail-grid">
         
         {/* VISUALISEUR 3D - MODE INTERACTIF 
-            Ici on active la rotation et l'interaction souris
-        */}
+            Ici on active la rotation et l'interaction souris */}
         <div className="product-card" style={{ padding: 0, overflow: "hidden", background: "#0b0e14", height: "500px", position: "relative" }}>
           <STLViewer 
             src={stlUrl} 
             autoRotate={true}   // Ça tourne tout seul pour la présentation
-            interactive={true}  // ✅ L'utilisateur PEUT toucher/zoomer ici
+            interactive={true}  // L'utilisateur peut toucher/zoomer ici
           />
         </div>
 
@@ -79,7 +78,7 @@ export default function ProductDetail() {
           <h1 style={{ marginTop: 0 }}>{item.title}</h1>
           
           <div style={{ marginBottom: 20, fontSize: 14, color: "var(--muted)" }}>
-              📂 {item.category} • ⬇️ {item.downloads} téléchargements
+              {item.category} • ⬇️ {item.downloads} téléchargements
           </div>
 
           <p style={{ color: "var(--muted)", flexGrow: 1, lineHeight: "1.6", minHeight: "100px" }}>
@@ -98,7 +97,7 @@ export default function ProductDetail() {
                 disabled={added}
                 style={{ minWidth: "180px", padding: "14px", fontSize: "16px" }}
               >
-                {added ? "Dans le panier ✅" : "Ajouter au panier 🛒"}
+                {added ? "Dans le panier" : "Ajouter au panier"}
               </button>
             </div>
           </div>

@@ -50,7 +50,7 @@ body {
   padding: 0 20px;
 }
 
-/* --- NAVBAR STYLISÉE --- */
+/* NAVBAR */
 .navbar {
   background: rgba(61, 118, 153, 0.9);
   backdrop-filter: blur(12px);
@@ -129,7 +129,7 @@ body {
   margin-left: 10px;
 }
 
-/* --- CATALOGUE --- */
+/* CATALOGUE */
 .catalogue-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -152,7 +152,7 @@ body {
 .card-preview { height: 180px; background: linear-gradient(45deg, #1e253a, #2d3550); display: flex; align-items: center; justify-content: center; font-size: 40px; }
 .card-content { padding: 20px; }
 
-/* --- RECHERCHE --- */
+/* RECHERCHE */
 .search-input-fancy {
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.1);
@@ -165,7 +165,7 @@ body {
 }
 .search-input-fancy:focus { border-color: var(--primary); width: 320px; }
 
-/* --- FORMULAIRES (AUTH) --- */
+/* FORMULAIRES (AUTH) */
 .auth-container {
   width: 100%;
   max-width: 500px;
@@ -211,7 +211,7 @@ body {
 }
 .btn-auth-submit:hover { transform: translateY(-2px); filter: brightness(1.1); }
 
-/* --- DETAIL PRODUIT --- */
+/* DETAIL PRODUIT */
 .detail-grid {
   display: grid;
   grid-template-columns: 1.2fr 1fr;
@@ -222,7 +222,7 @@ body {
 .btn { padding: 10px 20px; border-radius: 12px; font-weight: 700; cursor: pointer; border: 1px solid rgba(255,255,255,0.1); background: #1e253a; color: white; text-decoration: none; display: inline-flex; align-items: center; }
 .btn.primary { background: var(--vibrant-gradient); border: none; }
 
-/* --- RESPONSIVE --- */
+/* RESPONSIVE */
 @media (max-width: 850px) {
   .mobile-menu-btn { display: block; }
   .nav-links {
@@ -234,7 +234,7 @@ body {
   .detail-grid { grid-template-columns: 1fr; }
 }
 
-/* --- FOOTER STYLÉ --- */
+/* FOOTER */
 .footer {
   background: #0f111a; /* Plus foncé que le fond normal */
   border-top: 1px solid rgba(255, 255, 255, 0.05);
@@ -269,7 +269,7 @@ body {
   min-height: 100vh;
 }
 
-/* --- PANNEAU DE CONTENU PRINCIPAL --- */
+/* PANNEAU DE CONTENU PRINCIPAL */
 .main-content-panel {
   background: rgba(21, 24, 35, 0.96); /* Fond sombre très opaque pour la lisibilité */
   backdrop-filter: blur(20px); /* Effet de flou pour lisser la grille derrière */

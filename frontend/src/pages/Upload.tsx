@@ -1,5 +1,4 @@
 import { useState } from "react";
-// Assure-toi d'utiliser ton instance 'api' qui contient le token d'auth
 import api from "../lib/api"; 
 
 export default function Upload() {
@@ -50,7 +49,7 @@ export default function Upload() {
 
   return (
     <div className="container">
-      {/* ✅ Intégration dans le panneau principal */}
+      {/* Intégration dans le panneau principal */}
       <div className="main-content-panel">
         <h1 style={{ marginTop: 0, marginBottom: "30px" }}>Nouvelle impression 3D 🖨️</h1>
 
@@ -75,7 +74,7 @@ export default function Upload() {
                 id="file-upload"
               />
               <label htmlFor="file-upload" className="btn" style={{ cursor: "pointer", display: "inline-block", marginBottom: "10px" }}>
-                📂 Choisir un fichier
+                Choisir un fichier
               </label>
               
               <div style={{ marginTop: "10px", fontSize: "14px", color: file ? "var(--accent)" : "var(--muted)" }}>

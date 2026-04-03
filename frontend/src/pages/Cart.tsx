@@ -24,10 +24,10 @@ export default function Cart() {
       // 2. Préparation des données
       const payload: OrderItemDTO[] = items.map((it) => {
         
-        // 🧹 NETTOYAGE : On enlève le préfixe "print_" ou "file_"
+        // NETTOYAGE : On enlève le préfixe "print_" ou "file_"
         const realId = it._id.replace(/^(file_|print_)/, "");
 
-        // --- CAS 1 : C'est un FICHIER 3D ---
+        // CAS 1 : C'est un FICHIER 3D
         if (it.kind === "file") {
           return {
             kind: "file",
@@ -39,7 +39,7 @@ export default function Cart() {
           };
         }
 
-        // --- CAS 2 : C'est une IMPRESSION 3D ---
+        // CAS 2 : C'est une IMPRESSION 3D
         return {
           kind: "print",
           requestId: realId,
@@ -56,7 +56,7 @@ export default function Cart() {
 
       // 4. Succès
       clear(); // On vide le panier
-      alert("Paiement validé avec succès ! 🎉");
+      alert("Paiement validé avec succès !");
       navigate("/profile"); // On redirige vers le profil
 
     } catch (e: any) {
@@ -70,13 +70,13 @@ export default function Cart() {
 
   return (
     <div className="container">
-      {/* ✅ ENVELOPPE GLOBALE POUR LA LISIBILITÉ */}
+      {/* ENVELOPPE GLOBALE POUR LA LISIBILITÉ */}
       <div className="main-content-panel">
         
         <h1 style={{ marginTop: 0, marginBottom: "30px" }}>Mon Panier 🛒</h1>
 
         {items.length === 0 ? (
-          // --- PANIER VIDE ---
+          // PANIER VIDE
           <div style={{ textAlign: "center", padding: "60px 20px" }}>
             <p style={{ fontSize: "1.2rem", color: "var(--muted)", marginBottom: "20px" }}>
               Votre panier est vide pour le moment.
@@ -86,7 +86,7 @@ export default function Cart() {
             </button>
           </div>
         ) : (
-          // --- CONTENU DU PANIER ---
+          // CONTENU DU PANIER
           <>
             <div style={{ display: "grid", gap: "15px" }}>
               {items.map((it) => (
@@ -110,7 +110,7 @@ export default function Cart() {
                       {it.title}
                     </div>
                     <div style={{ fontSize: "0.9rem", color: "var(--muted)" }}>
-                      {it.kind === "print" ? "🖨️ Impression 3D" : "💾 Fichier STL"} • {it.price.toFixed(2)} € / unité
+                      {it.kind === "print" ? "Impression 3D" : "Fichier STL"} • {it.price.toFixed(2)} € / unité
                     </div>
                   </div>
 
@@ -156,7 +156,7 @@ export default function Cart() {
               ))}
             </div>
 
-            {/* --- FOOTER DU PANIER (TOTAL) --- */}
+            {/* FOOTER DU PANIER*/}
             <div
               style={{
                 marginTop: "40px",
@@ -191,7 +191,7 @@ export default function Cart() {
                   disabled={paying}
                   style={{ padding: "14px 32px", fontSize: "1.1rem" }}
                 >
-                  {paying ? "Traitement..." : "Payer la commande 💳"}
+                  {paying ? "Traitement..." : "Payer la commande"}
                 </button>
               </div>
             </div>

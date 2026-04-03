@@ -1,10 +1,7 @@
 import axios from "axios";
 
-// =========================================================
-// On force l'adresse de Render. Plus de localhost, plus de variables.
-// =========================================================
-console.log("👉 L'API pointe vers :", "https://stlmarket.onrender.com"); // Ajoute ça pour vérifier
-
+// On force l'adresse de Render.
+console.log("L'API pointe vers :", "https://stlmarket.onrender.com");
 const api = axios.create({
   baseURL: "https://stlmarket.onrender.com", 
   timeout: 10000,
@@ -17,9 +14,7 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-// =========================================================
 // AUTHENTIFICATION
-// =========================================================
 export type UserDTO = {
   id: string;
   email: string;
@@ -43,9 +38,7 @@ export const AuthAPI = {
   },
 };
 
-// =========================================================
 // FICHIERS (CATALOGUE)
-// =========================================================
 export type FileDTO = {
   _id: string;
   title: string;
@@ -67,9 +60,7 @@ export const FilesAPI = {
   },
 };
 
-// =========================================================
 // IMPRESSIONS (USER)
-// =========================================================
 export type PrintRequestStatus = "pending" | "quoted" | "rejected" | "paid";
 
 export type PrintRequestDTO = {
@@ -102,9 +93,7 @@ export const PrintAPI = {
   },
 };
 
-// =========================================================
 // ADMIN IMPRESSIONS
-// =========================================================
 export const AdminPrintAPI = {
   async list() {
     const { data } = await api.get("/api/admin/prints");
@@ -127,9 +116,7 @@ export const AdminPrintAPI = {
   },
 };
 
-// =========================================================
 // COMMANDES (ORDERS)
-// =========================================================
 export type OrderItemDTO = {
   kind: "file" | "print";
   fileId?: string;

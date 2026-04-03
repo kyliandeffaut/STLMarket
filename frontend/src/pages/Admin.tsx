@@ -42,7 +42,7 @@ export default function Admin() {
     if (!p) return alert("Prix invalide");
     try {
       await api.post(`/api/print/${id}/quote`, { price: p });
-      alert("Devis envoyé ! ✅");
+      alert("Devis envoyé !");
       loadRequests();
     } catch (e) { alert("Erreur envoi prix"); }
   };
@@ -51,14 +51,14 @@ export default function Admin() {
     <div className="container">
       <div className="main-content-panel">
         
-        <h1 style={{ marginBottom: "30px" }}>Panneau Administrateur 🛡️</h1>
+        <h1 style={{ marginBottom: "30px" }}>Panneau Administrateur</h1>
 
         <div style={{ display: "flex", gap: 15, marginBottom: "40px" }}>
           <button className={`btn ${tab === "prints" ? "primary" : ""}`} onClick={() => setTab("prints")}>
-            Gestion Impressions 🖨️
+            Gestion Impressions
           </button>
           <button className={`btn ${tab === "catalog" ? "primary" : ""}`} onClick={() => setTab("catalog")}>
-            Ajouter au Catalogue 📦
+            Ajouter au Catalogue
           </button>
         </div>
 
@@ -70,7 +70,7 @@ export default function Admin() {
                 {requests.map(r => (
                   <div key={r._id} style={{ 
                       padding: "20px", 
-                      background: "rgba(255,255,255,0.05)", // Légèrement plus clair que le fond
+                      background: "rgba(255,255,255,0.05)",
                       borderRadius: "12px", 
                       border: "1px solid rgba(255,255,255,0.1)",
                       display: "flex", 
@@ -88,7 +88,7 @@ export default function Admin() {
                         rel="noreferrer"
                         style={{ fontSize: "13px", color: "var(--accent)", textDecoration: "none", marginTop: "5px", display: "inline-block" }}
                       >
-                        📥 Télécharger le fichier
+                        Télécharger le fichier
                       </a>
                     </div>
                     

@@ -5,15 +5,11 @@ export type CartKind = "file" | "print";
 export type CartItem = {
   // id interne panier (clé unique)
   _id: string;
-
   kind: CartKind;
-
   // pour un fichier du catalogue
   fileId?: string;
-
   // pour une demande d'impression
   requestId?: string;
-
   title: string;
   price: number;
   category?: string;

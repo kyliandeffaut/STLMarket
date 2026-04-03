@@ -16,7 +16,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // 1. On récupère le token
   const [token, setToken] = useState<string | null>(() => localStorage.getItem("token"));
 
-  // 2. CORRECTION CRITIQUE ICI : On met un try/catch pour éviter l'écran blanc
+  // 2. On met un try/catch pour éviter l'écran blanc
   const [user, setUser] = useState<UserDTO | null>(() => {
     try {
       const raw = localStorage.getItem("user");
@@ -31,7 +31,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   });
 
-  const isAdmin = user?.role === "admin"; // ou "ADMIN" selon ta DB
+  const isAdmin = user?.role === "admin";
 
   // Sauvegarde auto du token
   useEffect(() => {

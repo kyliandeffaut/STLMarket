@@ -39,7 +39,7 @@ export async function login(req: Request, res: Response) {
 }
 
 export async function me(req: Request, res: Response) {
-  const auth = (req as any).auth; // ou req.auth si tu as mis le d.ts
+  const auth = (req as any).auth;
   const user = await User.findById(auth.id).select(
     "_id firstName lastName email role createdAt"
   );

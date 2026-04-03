@@ -1,13 +1,11 @@
-// backend/src/controllers/orderController.ts
 import { Request, Response } from "express";
 import mongoose from "mongoose";
 
-// ✅ adapte les chemins si besoin
 import Order from "../models/Order";
 import File from "../models/File";
 import PrintRequest from "../models/PrintRequest";
 
-// Types attendus côté API (comme ton frontend)
+// Types attendus côté API
 type OrderItemDTO = {
   kind: "file" | "print";
   fileId?: string;
@@ -20,7 +18,7 @@ type OrderItemDTO = {
 
 export async function createOrder(req: Request, res: Response) {
   try {
-    const auth = (req as any).auth; // requireAuth doit mettre req.auth = { id, role, ... }
+    const auth = (req as any).auth;
     const userId = auth?.id;
 
     const items = (req.body?.items ?? []) as OrderItemDTO[];
@@ -30,7 +28,7 @@ export async function createOrder(req: Request, res: Response) {
       return res.status(400).json({ error: "invalid_items" });
     }
 
-    // ✅ validation basique
+    // validation basique
     for (const it of items) {
       if (!it.kind) return res.status(400).json({ error: "missing_kind" });
       if (!it.title || typeof it.title !== "string") return res.status(400).json({ error: "invalid_title" });
@@ -43,7 +41,6 @@ export async function createOrder(req: Request, res: Response) {
 
     const totalPrice = items.reduce((s, it) => s + it.price * it.quantity, 0);
 
-    // ✅ créer en DB
     const order = await Order.create({
       userId: new mongoose.Types.ObjectId(userId),
       items,
@@ -51,7 +48,7 @@ export async function createOrder(req: Request, res: Response) {
       status: "paid",
     });
 
-    // ✅ incrémenter downloads pour chaque fichier acheté
+    // incrémenter downloads pour chaque fichier acheté
     const fileItems = items.filter((it) => it.kind === "file" && it.fileId);
     for (const it of fileItems) {
       await File.updateOne(
@@ -60,7 +57,7 @@ export async function createOrder(req: Request, res: Response) {
       );
     }
 
-    // ✅ marquer les prints "paid" si tu utilises PrintRequest
+    // marquer les prints "paid" si tu utilises PrintRequest
     const printItems = items.filter((it) => it.kind === "print" && it.requestId);
     for (const it of printItems) {
       await PrintRequest.updateOne(
@@ -101,7 +98,7 @@ export async function deleteOrder(req: Request, res: Response) {
 
     const { id } = req.params;
 
-    // ✅ on ne laisse supprimer que ses propres commandes
+    // on ne laisse supprimer que ses propres commandes
     const deleted = await Order.deleteOne({ _id: id, userId });
 
     if (deleted.deletedCount === 0) {

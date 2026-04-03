@@ -1,9 +1,5 @@
 /// <reference types="vite/client" />
 
-/* On déclare UNIQUEMENT les extensions qui manquent de types.
-   On NE TOUCHE PAS à 'three' principal pour garder Mesh, Renderer, etc.
-*/
-
 declare module 'three/examples/jsm/loaders/STLLoader.js' {
   import { Loader, LoadingManager, Group } from 'three';
   export class STLLoader extends Loader {

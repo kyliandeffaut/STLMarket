@@ -1,6 +1,6 @@
-import { useEffect, useState, useContext } from "react"; // ✅ Ajout de useContext
+import { useEffect, useState, useContext } from "react";
 import { useCart } from "../context/CartContext";
-import { AuthContext } from "../context/AuthContext"; // ✅ Ajout du AuthContext
+import { AuthContext } from "../context/AuthContext";
 import api from "../lib/api";
 import { useNavigate } from "react-router-dom";
 
@@ -9,7 +9,7 @@ export default function Profile() {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   
-  // ✅ On récupère le statut Admin pour afficher le bouton secret
+  // On récupère le statut Admin pour afficher le bouton secret
   const { isAdmin } = useContext(AuthContext);
 
   const load = async () => {
@@ -29,9 +29,9 @@ export default function Profile() {
 
   useEffect(() => { load(); }, []);
 
-  // ✅ FONCTION DE SUPPRESSION (Seulement pour toi)
+  // FONCTION DE SUPPRESSION
   const removeOrder = async (id: string) => {
-    if (!window.confirm("🛠️ MODE ADMIN : Supprimer définitivement cette commande de la base de données ?")) return;
+    if (!window.confirm("MODE ADMIN : Supprimer définitivement cette commande de la base de données ?")) return;
     try {
       await api.delete(`/api/orders/${id}`);
       await load(); // On recharge la liste après suppression
@@ -64,7 +64,6 @@ export default function Profile() {
 
   return (
     <div className="container">
-      {/* PANNEAU STYLE CULTS */}
       <div className="main-content-panel">
         <h1 style={{ marginTop: 0, marginBottom: "30px" }}>Mon Espace Personnel 👤</h1>
 
@@ -72,7 +71,6 @@ export default function Profile() {
           <p style={{ textAlign: "center", padding: "40px", color: "var(--muted)" }}>Chargement de vos données...</p>
         ) : (
           <div>
-            
             {/* SECTION HISTORIQUE ACHATS */}
             <div>
               <h2 style={{ fontSize: "1.4rem", marginBottom: "20px", color: "var(--accent)" }}>📦 Mes Commandes</h2>
@@ -103,7 +101,7 @@ export default function Profile() {
                           </div>
                         </div>
                         
-                        {/* ✅ AFFICHAGE DU PRIX ET DU BOUTON ADMIN */}
+                        {/* AFFICHAGE DU PRIX ET DU BOUTON ADMIN */}
                         <div style={{ display: "flex", alignItems: "center", gap: "15px" }}>
                           <span style={{ fontSize: "18px", fontWeight: "900", color: "#fff" }}>{o.totalPrice.toFixed(2)} €</span>
                           
@@ -136,15 +134,14 @@ export default function Profile() {
                                 <div style={{ fontSize: "12px", color: "var(--muted)" }}>{it.price.toFixed(2)} €</div>
                               </div>
                             </div>
-
-                            {/* BOUTON TÉLÉCHARGER (Seulement pour les fichiers) */}
+                            {/* BOUTON TÉLÉCHARGER */}
                             {it.kind === 'file' && it.fileId && (
                               <button 
                                 className="btn" 
                                 style={{ padding: "6px 12px", fontSize: "13px", display: "flex", alignItems: "center", gap: "5px" }}
                                 onClick={() => downloadFile(it.fileId, it.filename)}
                               >
-                                📥 Télécharger
+                                Télécharger
                               </button>
                             )}
                             
