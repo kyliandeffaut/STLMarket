@@ -228,7 +228,7 @@ body {
   .nav-links {
     position: fixed; top: var(--nav-height); left: 0; right: 0;
     height: 0; overflow: hidden; flex-direction: column;
-    background: #0f111a; transition: 0.4s; padding: 0;
+    background: #3b4677; transition: 0.4s; padding: 0;
   }
   .nav-links.open { height: 100vh; padding: 40px 0; gap: 30px; }
   .detail-grid { grid-template-columns: 1fr; }
