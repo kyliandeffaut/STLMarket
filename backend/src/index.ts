@@ -21,9 +21,9 @@ app.disable('x-powered-by');
 console.log("⏳ Tentative de connexion à MongoDB...");
 mongoose
   .connect(process.env.MONGO_URI as string)
-  .then(() => console.log("✅ MongoDB Connecté avec succès !"))
+  .then(() => console.log("MongoDB Connecté avec succès !"))
   .catch((err) => {
-    console.error("❌ ERREUR MONGODB :", err);
+    console.error("ERREUR MONGODB :", err);
   });
 
 // 2. CONFIGURATION CORS AVEC LA LIBRAIRIE

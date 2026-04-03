@@ -5,6 +5,7 @@ import { requireAuth, signToken } from "../middlewares/auth";
 
 const r = Router();
 
+// définition des routes pour l'inscription et la connexion des utilisateurs
 r.post("/register", async (req, res) => {
   const { firstName, lastName, email, password } = req.body ?? {};
   if (!firstName || !lastName || !email || !password) return res.status(400).json({ error: "missing_fields" });
@@ -14,6 +15,7 @@ r.post("/register", async (req, res) => {
 
   const passwordHash = await bcrypt.hash(String(password), 10);
 
+  // je crée l'utilisateur avec un rôle "user" par défaut
   const user = await User.create({
     firstName,
     lastName,
@@ -46,17 +48,6 @@ r.post("/login", async (req, res) => {
   res.json({
     ok: true,
     token,
-    user: { id: user._id.toString(), firstName: user.firstName, lastName: user.lastName, email: user.email, role: user.role },
-  });
-});
-
-r.get("/me", requireAuth, async (req, res) => {
-  const auth = (req as any).auth as { id: string };
-  const user = await User.findById(auth.id).select("_id firstName lastName email role");
-  if (!user) return res.status(404).json({ error: "not_found" });
-
-  res.json({
-    ok: true,
     user: { id: user._id.toString(), firstName: user.firstName, lastName: user.lastName, email: user.email, role: user.role },
   });
 });

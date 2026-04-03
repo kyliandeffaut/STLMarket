@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 
+// schéma pour les demandes de services d'impression personnalisées
 const printRequestSchema = new mongoose.Schema({
   userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
   originalName: { type: String, required: true },
@@ -7,6 +8,7 @@ const printRequestSchema = new mongoose.Schema({
   
   description: { type: String, default: "" }, 
   
+  // la demande passe de "en attente" à "devis fait" puis "payée"
   status: { 
     type: String, 
     enum: ["pending", "quoted", "paid"], 

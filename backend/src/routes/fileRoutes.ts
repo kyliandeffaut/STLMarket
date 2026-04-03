@@ -8,14 +8,14 @@ import { CloudinaryStorage } from "multer-storage-cloudinary";
 
 const r = Router();
 
-// Configuration Cloudinary (utilise tes variables Render)
+// configuration de cloudinary pour le stockage des fichiers stl
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
   api_key: process.env.CLOUDINARY_API_KEY,
   api_secret: process.env.CLOUDINARY_API_SECRET
 });
 
-// Configuration du stockage Cloudinary
+// paramétrage du stockage cloud pour accepter les fichiers raw (stl)
 const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: async (req: any, file: any) => {
@@ -30,15 +30,13 @@ const storage = new CloudinaryStorage({
 
 const upload = multer({ storage: storage });
 
-// --- ROUTES ---
-
-// 1. Liste des fichiers
+// récupération de tous les fichiers disponibles à la vente
 r.get("/", async (_req, res) => {
   const files = await File.find().sort({ createdAt: -1 });
   res.json(files);
 });
 
-// 2. AJOUTER UN FICHIER (Route POST pour l'Admin)
+// route pour ajouter un nouveau produit avec upload sur cloudinary
 r.post("/", requireAuth, upload.single("file"), async (req: any, res) => {
   try {
     const { title, category, price, description } = req.body;
@@ -56,6 +54,7 @@ r.post("/", requireAuth, upload.single("file"), async (req: any, res) => {
     await newFile.save();
     res.status(201).json(newFile);
   } catch (error: any) {
+    // gestion du doublon si le titre est déjà pris
     if (error.code === 11000) {
         return res.status(400).json({ error: "Ce titre existe déjà." });
     }
@@ -63,7 +62,7 @@ r.post("/", requireAuth, upload.single("file"), async (req: any, res) => {
   }
 });
 
-// 3. TÉLÉCHARGEMENT (Génère le lien Cloudinary)
+// génération d'un lien de téléchargement sécurisé après vérification de l'achat
 r.get("/download/:fileId", requireAuth, async (req: any, res) => {
   try {
     const fileId = req.params.fileId;
@@ -73,12 +72,13 @@ r.get("/download/:fileId", requireAuth, async (req: any, res) => {
     const file = await File.findById(fileId);
     if (!file) return res.status(404).json({ message: "Fichier introuvable" });
 
-    // Vérification de l'achat
+    // je vérifie si l'utilisateur a bien payé le fichier ou s'il est admin
     const order = await Order.findOne({ userId, "items.fileId": fileId });
     if (!order && userRole !== 'admin') {
       return res.status(403).json({ message: "Achat requis" });
     }
 
+    // création de l'url cloudinary signée pour le téléchargement
     const downloadUrl = cloudinary.url(file.filename, {
       resource_type: 'raw',
       flags: 'attachment',

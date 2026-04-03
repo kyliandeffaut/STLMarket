@@ -1,5 +1,6 @@
 import { Schema, model } from "mongoose";
 
+// structure d'un article à l'intérieur d'une commande
 const orderItemSchema = new Schema(
   {
     kind: { type: String, enum: ["file", "print"], required: true },
@@ -13,6 +14,7 @@ const orderItemSchema = new Schema(
   { _id: false }
 );
 
+// schéma général pour stocker les commandes passées sur la plateforme
 const orderSchema = new Schema(
   {
     userId: { type: Schema.Types.ObjectId, ref: "User", required: true },

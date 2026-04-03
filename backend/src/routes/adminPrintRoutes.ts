@@ -4,13 +4,13 @@ import { requireAuth, requireAdmin } from "../middlewares/auth";
 
 const r = Router();
 
-// GET /api/admin/prints
+// je récupère toutes les demandes d'impression pour l'interface administrateur
 r.get("/", requireAuth, requireAdmin, async (_req, res) => {
   const requests = await PrintRequest.find().sort({ createdAt: -1 });
   res.json({ ok: true, requests });
 });
 
-// PATCH /api/admin/prints/:id/quote
+// je permets à l'admin d'envoyer un devis pour une demande d'impression
 r.patch("/:id/quote", requireAuth, requireAdmin, async (req, res) => {
   const { id } = req.params;
   const price = Number(req.body?.price);
@@ -20,6 +20,7 @@ r.patch("/:id/quote", requireAuth, requireAdmin, async (req, res) => {
     return res.status(400).json({ error: "invalid_price" });
   }
 
+  // je mets à jour le statut de la demande en "devis envoyé"
   const doc = await PrintRequest.findByIdAndUpdate(
     id,
     { status: "quoted", quotePrice: price, adminMessage },
@@ -30,7 +31,7 @@ r.patch("/:id/quote", requireAuth, requireAdmin, async (req, res) => {
   res.json({ ok: true, request: doc });
 });
 
-// DELETE /api/admin/prints/:id  (Refuser = supprimer)
+// je donne la possibilité à l'admin de supprimer ou refuser une demande
 r.delete("/:id", requireAuth, requireAdmin, async (req, res) => {
   const { id } = req.params;
   const deleted = await PrintRequest.findByIdAndDelete(id);
